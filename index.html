@@ -1,1066 +1,216 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A' · Quiz Duel · Invite Friends</title>
-    <!-- Socket.io client -->
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- QR Code library for easy sharing -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #0f0c1f, #1a1a2e);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        /* Splash Screen */
-        #splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0a0a1a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            transition: opacity 0.8s ease;
-        }
-
-        .splash-content {
-            text-align: center;
-        }
-
-        .spinner-A {
-            font-size: 150px;
-            font-weight: 900;
-            background: linear-gradient(45deg, #ff3366, #33ccff, #ffcc33);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: spinApostrophe 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-            text-shadow: 0 0 30px rgba(255, 51, 102, 0.5);
-            position: relative;
-            display: inline-block;
-        }
-
-        .spinner-A::after {
-            content: "'";
-            position: absolute;
-            top: -20px;
-            right: -30px;
-            font-size: 80px;
-            background: linear-gradient(45deg, #ffcc33, #ff3366);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: pulseApostrophe 1.5s ease-in-out infinite;
-        }
-
-        @keyframes spinApostrophe {
-            0% { transform: rotate(0deg) scale(0.5); opacity: 0; }
-            50% { transform: rotate(540deg) scale(1.2); opacity: 0.8; }
-            100% { transform: rotate(1080deg) scale(1); opacity: 1; }
-        }
-
-        @keyframes pulseApostrophe {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.3); opacity: 1; }
-        }
-
-        /* Main App */
-        #app {
-            width: 100%;
-            max-width: 1200px;
-            padding: 20px;
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-
-        /* Welcome Modal */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 900;
-        }
-
-        .modal-content {
-            background: linear-gradient(145deg, #1e1a3a, #2a2545);
-            padding: 40px;
-            border-radius: 30px;
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-            border: 2px solid #ff3366;
-            box-shadow: 0 20px 40px rgba(255, 51, 102, 0.3);
-        }
-
-        .modal-content h2 {
-            color: white;
-            font-size: 36px;
-            margin-bottom: 10px;
-            text-shadow: 0 0 15px #ff3366;
-        }
-
-        .modal-content h2 span {
-            color: #ffcc33;
-            font-style: italic;
-        }
-
-        .modal-tabs {
-            display: flex;
-            gap: 10px;
-            margin: 30px 0 20px;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 15px;
-            background: #2a2545;
-            border: 2px solid #4a3f6e;
-            border-radius: 15px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .tab-btn.active {
-            background: #ff3366;
-            border-color: #ffcc33;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .input-group {
-            margin: 20px 0;
-        }
-
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 15px 20px;
-            background: #1a1535;
-            border: 2px solid #4a3f6e;
-            border-radius: 15px;
-            color: white;
-            font-size: 16px;
-            margin-bottom: 15px;
-        }
-
-        .input-group button {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(45deg, #ff3366, #33ccff);
-            border: none;
-            border-radius: 15px;
-            color: white;
-            font-weight: 700;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .invite-code-display {
-            background: #1a1535;
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-        }
-
-        .invite-code {
-            font-size: 48px;
-            font-weight: 800;
-            color: #ffcc33;
-            letter-spacing: 5px;
-            margin: 10px 0;
-        }
-
-        .share-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
-        .share-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .whatsapp { background: #25D366; color: white; }
-        .telegram { background: #0088cc; color: white; }
-        .copy { background: #4a3f6e; color: white; }
-
-        #qrcode {
-            margin: 20px auto;
-            padding: 10px;
-            background: white;
-            border-radius: 10px;
-            display: inline-block;
-        }
-
-        /* Home Page */
-        .home-page {
-            display: none;
-        }
-
-        .home-page.active {
-            display: block;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background: rgba(26, 21, 53, 0.8);
-            backdrop-filter: blur(10px);
-            border-radius: 60px;
-            margin-bottom: 30px;
-            border: 1px solid #4a3f6e;
-        }
-
-        .logo {
-            font-size: 40px;
-            font-weight: 900;
-            background: linear-gradient(45deg, #ff3366, #33ccff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            position: relative;
-        }
-
-        .logo::after {
-            content: "'";
-            position: absolute;
-            top: -5px;
-            right: -15px;
-            font-size: 30px;
-            color: #ffcc33;
-        }
-
-        .room-info {
-            background: #2a2545;
-            padding: 10px 20px;
-            border-radius: 40px;
-            color: white;
-            font-size: 14px;
-            border: 1px solid #ff3366;
-        }
-
-        .menu-container {
-            position: relative;
-        }
-
-        .menu-btn {
-            background: #2a2545;
-            border: none;
-            color: white;
-            font-size: 24px;
-            padding: 12px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-            border: 1px solid #4a3f6e;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 60px;
-            right: 0;
-            background: #2a2545;
-            border-radius: 15px;
-            border: 1px solid #4a3f6e;
-            display: none;
-            z-index: 100;
-        }
-
-        .dropdown-menu.show {
-            display: block;
-        }
-
-        .dropdown-menu a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 15px 25px;
-            color: white;
-            text-decoration: none;
-            border-bottom: 1px solid #4a3f6e;
-        }
-
-        .dropdown-menu a:last-child {
-            border-bottom: none;
-        }
-
-        .dropdown-menu a:hover {
-            background: #332d55;
-        }
-
-        .player-card {
-            background: rgba(26, 21, 53, 0.9);
-            backdrop-filter: blur(10px);
-            border-radius: 40px;
-            padding: 30px;
-            margin-bottom: 30px;
-            border: 2px solid #4a3f6e;
-            position: relative;
-        }
-
-        .online-indicator {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: #1a1535;
-            border-radius: 30px;
-            border: 1px solid #4a3f6e;
-        }
-
-        .online-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #ff3366;
-            transition: background 0.3s;
-        }
-
-        .online-dot.online {
-            background: #33cc66;
-            box-shadow: 0 0 15px #33cc66;
-        }
-
-        .player-profile {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            margin-bottom: 20px;
-        }
-
-        .avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: #2a2545;
-            border: 4px solid #ff3366;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .avatar img, .avatar i {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            font-size: 70px;
-            color: #ffcc33;
-        }
-
-        .player-info h1 {
-            color: white;
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
-
-        .score {
-            font-size: 36px;
-            color: #ffcc33;
-            font-weight: 800;
-        }
-
-        .typing-indicator {
-            color: #33ccff;
-            font-size: 14px;
-            margin-top: 5px;
-            font-style: italic;
-        }
-
-        .question-area {
-            background: rgba(26, 21, 53, 0.9);
-            backdrop-filter: blur(10px);
-            border-radius: 40px;
-            padding: 30px;
-            border: 2px solid #4a3f6e;
-        }
-
-        .ask-section {
-            margin-bottom: 30px;
-        }
-
-        .ask-input {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .ask-input input {
-            flex: 1;
-            padding: 20px 25px;
-            background: #1a1535;
-            border: 2px solid #4a3f6e;
-            border-radius: 50px;
-            color: white;
-            font-size: 16px;
-        }
-
-        .ask-input input:focus {
-            border-color: #ff3366;
-            outline: none;
-        }
-
-        .ask-input button {
-            padding: 0 30px;
-            background: linear-gradient(45deg, #ff3366, #33ccff);
-            border: none;
-            border-radius: 50px;
-            color: white;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .ask-input button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .incoming-question {
-            background: #1a1535;
-            border-radius: 30px;
-            padding: 20px;
-            margin: 20px 0;
-            border-left: 5px solid #ff3366;
-        }
-
-        .question-text {
-            color: white;
-            font-size: 20px;
-            margin-bottom: 15px;
-        }
-
-        .answer-buttons {
-            display: flex;
-            gap: 15px;
-        }
-
-        .correct-btn, .wrong-btn {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 30px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .correct-btn {
-            background: #33cc66;
-            color: white;
-        }
-
-        .wrong-btn {
-            background: #ff3366;
-            color: white;
-        }
-
-        .waiting-message {
-            text-align: center;
-            color: #aaa;
-            padding: 40px;
-            font-size: 18px;
-        }
-
-        .waiting-message i {
-            font-size: 50px;
-            color: #ffcc33;
-            margin-bottom: 20px;
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(45deg, #ff3366, #33ccff);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(255, 51, 102, 0.5);
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        .hidden {
-            display: none !important;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A' | Real-Time Quiz Duel</title>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+
+body{
+background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+color:white;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
+}
+
+.screen{
+display:none;
+width:100%;
+max-width:500px;
+text-align:center;
+padding:20px;
+}
+
+.active{display:block}
+
+button{
+padding:12px 20px;
+margin:10px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:16px;
+}
+
+.primary{
+background:#00c9ff;
+color:black;
+font-weight:bold;
+}
+
+.secondary{
+background:#ff4b2b;
+color:white;
+}
+
+.card{
+background:rgba(255,255,255,0.08);
+padding:20px;
+border-radius:15px;
+margin-top:20px;
+}
+
+.online{
+color:#00ff88;
+font-weight:bold;
+}
+
+.offline{
+color:#ff4b2b;
+font-weight:bold;
+}
+
+input{
+padding:10px;
+width:90%;
+margin-top:10px;
+border-radius:8px;
+border:none;
+}
+</style>
 </head>
+
 <body>
-    <!-- Splash Screen -->
-    <div id="splash-screen">
-        <div class="splash-content">
-            <div class="spinner-A">A</div>
-        </div>
-    </div>
 
-    <!-- Main App -->
-    <div id="app">
-        <!-- Welcome Modal -->
-        <div id="welcomeModal" class="modal">
-            <div class="modal-content">
-                <h2>Welcome to <span>A'</span></h2>
-                <p style="color: #aaa; margin-bottom: 20px;">Create a game or join with a code</p>
-                
-                <div class="modal-tabs">
-                    <button class="tab-btn active" id="createTab">Create Game</button>
-                    <button class="tab-btn" id="joinTab">Join Game</button>
-                </div>
+<div class="screen active" id="splash">
+<h1 style="font-size:60px">A'</h1>
+<p>Real-Time Quiz Duel</p>
+<button class="primary" onclick="showHome()">Start</button>
+</div>
 
-                <!-- Create Game Tab -->
-                <div class="tab-content active" id="createContent">
-                    <div class="input-group">
-                        <input type="text" id="playerNameCreate" placeholder="Your Name" value="Player">
-                        <select id="playerTypeCreate">
-                            <option value="A">Play as Player A</option>
-                            <option value="B">Play as Player B</option>
-                        </select>
-                        <button id="createGameBtn">
-                            <i class="fas fa-gamepad"></i> Create Game
-                        </button>
-                    </div>
-                </div>
+<div class="screen" id="home">
+<h2>Create or Join Game</h2>
+<button class="primary" onclick="createGame()">Create Game</button>
 
-                <!-- Join Game Tab -->
-                <div class="tab-content" id="joinContent">
-                    <div class="input-group">
-                        <input type="text" id="inviteCodeInput" placeholder="Enter Invite Code" maxlength="8">
-                        <input type="text" id="playerNameJoin" placeholder="Your Name" value="Player">
-                        <select id="playerTypeJoin">
-                            <option value="A">Play as Player A</option>
-                            <option value="B">Play as Player B</option>
-                        </select>
-                        <button id="joinGameBtn">
-                            <i class="fas fa-sign-in-alt"></i> Join Game
-                        </button>
-                    </div>
-                </div>
+<div class="card">
+<input id="roomInput" placeholder="Enter Invite Code"/>
+<button class="secondary" onclick="joinGame()">Join Game</button>
+</div>
+</div>
 
-                <!-- Invite Display (shown after game creation) -->
-                <div id="inviteDisplay" class="hidden">
-                    <div class="invite-code-display">
-                        <p style="color: #aaa;">Share this code with your friend:</p>
-                        <div class="invite-code" id="inviteCode"></div>
-                        <div id="qrcode"></div>
-                        <div class="share-buttons">
-                            <button class="share-btn whatsapp" id="shareWhatsApp">
-                                <i class="fab fa-whatsapp"></i> WhatsApp
-                            </button>
-                            <button class="share-btn telegram" id="shareTelegram">
-                                <i class="fab fa-telegram"></i> Telegram
-                            </button>
-                            <button class="share-btn copy" id="copyInvite">
-                                <i class="fas fa-copy"></i> Copy
-                            </button>
-                        </div>
-                    </div>
-                    <p style="color: #ffcc33; margin-top: 10px;">
-                        <i class="fas fa-spinner fa-pulse"></i> Waiting for opponent...
-                    </p>
-                </div>
-            </div>
-        </div>
+<div class="screen" id="waiting">
+<h2>Waiting for Opponent...</h2>
+<p>Invite Link:</p>
+<div class="card">
+<p id="inviteLink"></p>
+<button onclick="copyLink()">Copy Link</button>
+</div>
+</div>
 
-        <!-- Game Room - Player View (Dynamic) -->
-        <div id="gameRoom" class="home-page">
-            <div class="header">
-                <div class="logo">A</div>
-                <div class="room-info" id="roomInfo"></div>
-                <div class="menu-container">
-                    <button class="menu-btn" id="menuToggle"><i class="fas fa-cog"></i></button>
-                    <div class="dropdown-menu" id="dropdownMenu">
-                        <a href="#" id="settingsBtn"><i class="fas fa-sliders-h"></i> Settings</a>
-                        <a href="#" id="inviteFriendsBtn"><i class="fas fa-user-plus"></i> Invite Friends</a>
-                        <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Leave Game</a>
-                    </div>
-                </div>
-            </div>
+<div class="screen" id="game">
+<h2 id="roleTitle"></h2>
+<p>Opponent: <span id="opponentStatus" class="offline">Offline</span></p>
+<h3>Your Score: <span id="score">0</span></h3>
 
-            <div class="player-card">
-                <div class="online-indicator">
-                    <span class="online-dot" id="opponentStatus"></span>
-                    <span class="online-text" id="opponentStatusText">Waiting for opponent</span>
-                </div>
-                
-                <div class="player-profile">
-                    <div class="avatar" id="playerAvatar">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                    <div class="player-info">
-                        <h1 id="playerNameDisplay">Player</h1>
-                        <div class="score" id="playerScore">0</div>
-                        <label class="upload-avatar">
-                            <i class="fas fa-camera"></i> Change Photo
-                            <input type="file" id="avatarUpload" accept="image/*" style="display:none;">
-                        </label>
-                    </div>
-                </div>
-                <div class="typing-indicator" id="typingIndicator"></div>
-            </div>
+<div class="card">
+<h3 id="questionText">Question appears here</h3>
+<div id="answers"></div>
+</div>
+</div>
 
-            <div class="question-area">
-                <!-- Waiting for opponent -->
-                <div id="waitingScreen" class="waiting-message">
-                    <i class="fas fa-users"></i>
-                    <h3>Waiting for opponent to join...</h3>
-                    <p>Share the invite code with your friend</p>
-                </div>
+<script>
+const SERVER_URL = "https://your-railway-backend.up.railway.app";
+const socket = io(SERVER_URL);
 
-                <!-- Game active -->
-                <div id="gameActive" class="hidden">
-                    <div class="ask-section">
-                        <h3 style="color: white; margin-bottom: 20px;" id="askTitle">Ask Question</h3>
-                        <div class="ask-input">
-                            <input type="text" id="questionInput" placeholder="Type your question...">
-                            <button id="askBtn"><i class="fas fa-paper-plane"></i> Send</button>
-                        </div>
-                    </div>
+let roomId = null;
+let role = null;
+let score = 0;
 
-                    <div id="incomingQuestionSection" class="hidden">
-                        <h3 style="color: white; margin-bottom: 20px;" id="incomingTitle">Question from Opponent</h3>
-                        <div class="incoming-question">
-                            <div class="question-text" id="incomingQuestionText"></div>
-                            <div class="answer-buttons">
-                                <button class="correct-btn" id="correctBtn"><i class="fas fa-check"></i> Correct</button>
-                                <button class="wrong-btn" id="wrongBtn"><i class="fas fa-times"></i> Wrong</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+function showScreen(id){
+document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+}
 
-    <!-- Notification -->
-    <div id="notification" class="notification"></div>
+function showHome(){
+showScreen("home");
+}
 
-    <script>
-        // ============================================
-        // YOUR RAILWAY BACKEND URL - ALREADY CONFIGURED
-        // ============================================
-        const SOCKET_URL = 'https://tales-a-production.up.railway.app';
-        
-        let socket;
-        let currentRoom = null;
-        let currentPlayer = null;
-        let playerName = '';
-        let playerType = null;
-        let isHost = false;
-        let questions = JSON.parse(localStorage.getItem('questions') || '[]');
+function createGame(){
+socket.emit("createRoom");
+}
 
-        // DOM Elements
-        const splash = document.getElementById('splash-screen');
-        const app = document.getElementById('app');
-        const welcomeModal = document.getElementById('welcomeModal');
-        const gameRoom = document.getElementById('gameRoom');
-        const notification = document.getElementById('notification');
+function joinGame(){
+const input = document.getElementById("roomInput").value.trim();
+if(input){
+roomId = input;
+socket.emit("joinRoom", roomId);
+}
+}
 
-        // Splash animation
-        setTimeout(() => {
-            splash.style.opacity = '0';
-            setTimeout(() => {
-                splash.style.display = 'none';
-                app.style.opacity = '1';
-            }, 800);
-        }, 2000);
+socket.on("roomCreated", data=>{
+roomId = data.roomId;
+role = "A";
+const link = window.location.origin + window.location.pathname + "?room=" + roomId;
+document.getElementById("inviteLink").innerText = link;
+showScreen("waiting");
+});
 
-        // Tab switching
-        document.getElementById('createTab').addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('createTab').classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById('createContent').classList.add('active');
-            document.getElementById('inviteDisplay').classList.add('hidden');
-        });
+socket.on("roomJoined", data=>{
+roomId = data.roomId;
+role = "B";
+});
 
-        document.getElementById('joinTab').addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('joinTab').classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById('joinContent').classList.add('active');
-            document.getElementById('inviteDisplay').classList.add('hidden');
-        });
+socket.on("startGame", ()=>{
+showScreen("game");
+document.getElementById("roleTitle").innerText =
+role === "A" ? "You are Player A" : "You are Player B";
+});
 
-        // Show notification
-        function showNotification(message, duration = 3000) {
-            notification.textContent = message;
-            notification.classList.add('show');
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, duration);
-        }
+socket.on("opponentStatus", status=>{
+const el = document.getElementById("opponentStatus");
+if(status){
+el.innerText="Online";
+el.className="online";
+}else{
+el.innerText="Offline";
+el.className="offline";
+}
+});
 
-        // Generate invite link
-        function generateInviteLink(code) {
-            return `${window.location.origin}${window.location.pathname}?join=${code}`;
-        }
+socket.on("newQuestion", data=>{
+document.getElementById("questionText").innerText = data.question;
+const answersDiv = document.getElementById("answers");
+answersDiv.innerHTML = "";
+data.options.forEach(opt=>{
+const btn = document.createElement("button");
+btn.className="primary";
+btn.innerText = opt;
+btn.onclick = ()=>answer(opt);
+answersDiv.appendChild(btn);
+});
+});
 
-        // Create game
-        document.getElementById('createGameBtn').addEventListener('click', async () => {
-            playerName = document.getElementById('playerNameCreate').value || 'Player';
-            playerType = document.getElementById('playerTypeCreate').value;
+socket.on("scoreUpdate", newScore=>{
+score = newScore;
+document.getElementById("score").innerText = score;
+});
 
-            try {
-                const response = await fetch(`${SOCKET_URL}/api/create-game`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ playerName, playerType })
-                });
+function answer(choice){
+socket.emit("answer",{roomId,choice});
+}
 
-                const data = await response.json();
-                
-                if (data.success) {
-                    currentRoom = data.roomId;
-                    isHost = true;
-                    
-                    // Show invite display
-                    document.getElementById('createContent').classList.add('hidden');
-                    document.getElementById('inviteDisplay').classList.remove('hidden');
-                    document.getElementById('inviteCode').textContent = data.inviteCode;
-                    
-                    // Generate QR code
-                    document.getElementById('qrcode').innerHTML = '';
-                    new QRCode(document.getElementById('qrcode'), {
-                        text: generateInviteLink(data.inviteCode),
-                        width: 150,
-                        height: 150
-                    });
-                    
-                    // Connect to socket and join room
-                    connectToRoom(currentRoom, playerType, playerName);
-                }
-            } catch (error) {
-                showNotification('Error creating game: ' + error.message);
-            }
-        });
+function copyLink(){
+navigator.clipboard.writeText(
+document.getElementById("inviteLink").innerText
+);
+alert("Link Copied!");
+}
 
-        // Join game
-        document.getElementById('joinGameBtn').addEventListener('click', async () => {
-            const inviteCode = document.getElementById('inviteCodeInput').value.toUpperCase().trim();
-            playerName = document.getElementById('playerNameJoin').value || 'Player';
-            playerType = document.getElementById('playerTypeJoin').value;
+window.onload = ()=>{
+const params = new URLSearchParams(window.location.search);
+if(params.get("room")){
+roomId = params.get("room");
+socket.emit("joinRoom", roomId);
+}
+};
+</script>
 
-            if (!inviteCode) {
-                showNotification('Please enter an invite code');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${SOCKET_URL}/api/join-game`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ inviteCode })
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    currentRoom = data.roomId;
-                    isHost = false;
-                    
-                    // Connect to socket and join room
-                    connectToRoom(currentRoom, playerType, playerName);
-                } else {
-                    showNotification(data.message);
-                }
-            } catch (error) {
-                showNotification('Error joining game: ' + error.message);
-            }
-        });
-
-        // Connect to socket room
-        function connectToRoom(roomId, type, name) {
-            socket = io(SOCKET_URL);
-            
-            socket.on('connect', () => {
-                console.log('Connected to server');
-                
-                // Join the room
-                socket.emit('join-room', {
-                    roomId,
-                    playerType: type,
-                    playerName: name
-                });
-            });
-
-            socket.on('room-state', (data) => {
-                console.log('Room state:', data);
-                welcomeModal.style.display = 'none';
-                gameRoom.classList.add('active');
-                
-                document.getElementById('roomInfo').textContent = `Room: ${data.roomId}`;
-                document.getElementById('playerNameDisplay').textContent = playerName;
-                
-                // Check if both players are present
-                checkGameReady(data.players);
-            });
-
-            socket.on('player-joined', (data) => {
-                console.log('Player joined:', data);
-                showNotification(`Player ${data.playerType} joined the game!`);
-                updatePlayersList(data.players);
-                checkGameReady(data.players);
-            });
-
-            socket.on('player-left', (data) => {
-                console.log('Player left:', data);
-                showNotification(`Player ${data.playerType} left the game`);
-                updatePlayersList(data.players);
-                checkGameReady(data.players);
-            });
-
-            socket.on('receive-question', (data) => {
-                console.log('Question received:', data);
-                document.getElementById('incomingQuestionText').textContent = data.question;
-                document.getElementById('incomingQuestionSection').classList.remove('hidden');
-                showNotification('📨 New question!');
-                
-                // Store question for answering
-                window.currentQuestion = data;
-            });
-
-            socket.on('answer-result', (data) => {
-                console.log('Answer result:', data);
-                if (data.isCorrect) {
-                    showNotification('✅ Correct! +10 points');
-                    document.getElementById('playerScore').textContent = data.newScore;
-                } else {
-                    showNotification('❌ Wrong answer');
-                }
-                document.getElementById('incomingQuestionSection').classList.add('hidden');
-            });
-
-            socket.on('player-typing', (data) => {
-                const indicator = document.getElementById('typingIndicator');
-                if (data.isTyping) {
-                    indicator.textContent = `Player ${data.playerType} is typing...`;
-                } else {
-                    indicator.textContent = '';
-                }
-            });
-
-            socket.on('error', (data) => {
-                showNotification('Error: ' + data.message);
-            });
-        }
-
-        // Check if game is ready to start
-        function checkGameReady(players) {
-            const playerCount = Object.keys(players).length;
-            
-            if (playerCount >= 2) {
-                document.getElementById('waitingScreen').classList.add('hidden');
-                document.getElementById('gameActive').classList.remove('hidden');
-                document.getElementById('opponentStatus').classList.add('online');
-                document.getElementById('opponentStatusText').textContent = 'Opponent online';
-            } else {
-                document.getElementById('waitingScreen').classList.remove('hidden');
-                document.getElementById('gameActive').classList.add('hidden');
-                document.getElementById('opponentStatus').classList.remove('online');
-                document.getElementById('opponentStatusText').textContent = 'Waiting for opponent';
-            }
-        }
-
-        // Update players list (for UI)
-        function updatePlayersList(players) {
-            // Update opponent info if needed
-            const opponentType = playerType === 'A' ? 'B' : 'A';
-            if (players[opponentType]) {
-                document.getElementById('askTitle').textContent = `Ask ${players[opponentType].name}`;
-                document.getElementById('incomingTitle').textContent = `Question from ${players[opponentType].name}`;
-            }
-        }
-
-        // Send question
-        document.getElementById('askBtn').addEventListener('click', () => {
-            const input = document.getElementById('questionInput');
-            const question = input.value.trim();
-            
-            if (!question) return;
-            
-            const opponentType = playerType === 'A' ? 'B' : 'A';
-            
-            socket.emit('send-question', {
-                roomId: currentRoom,
-                question,
-                to: opponentType
-            });
-            
-            // Save to local storage
-            questions.push({
-                id: Date.now(),
-                text: question,
-                from: playerType,
-                timestamp: Date.now()
-            });
-            localStorage.setItem('questions', JSON.stringify(questions));
-            
-            input.value = '';
-            showNotification('Question sent!');
-        });
-
-        // Typing indicator
-        document.getElementById('questionInput').addEventListener('input', (e) => {
-            socket.emit('typing', {
-                roomId: currentRoom,
-                isTyping: e.target.value.length > 0
-            });
-        });
-
-        // Answer buttons
-        document.getElementById('correctBtn').addEventListener('click', () => {
-            if (window.currentQuestion) {
-                socket.emit('submit-answer', {
-                    roomId: currentRoom,
-                    questionId: window.currentQuestion.id,
-                    isCorrect: true,
-                    answeredBy: playerType
-                });
-                document.getElementById('incomingQuestionSection').classList.add('hidden');
-            }
-        });
-
-        document.getElementById('wrongBtn').addEventListener('click', () => {
-            if (window.currentQuestion) {
-                socket.emit('submit-answer', {
-                    roomId: currentRoom,
-                    questionId: window.currentQuestion.id,
-                    isCorrect: false,
-                    answeredBy: playerType
-                });
-                document.getElementById('incomingQuestionSection').classList.add('hidden');
-            }
-        });
-
-        // Avatar upload
-        document.getElementById('avatarUpload').addEventListener('change', (e) => {
-            if (e.target.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById('playerAvatar').innerHTML = `<img src="${e.target.result}" alt="avatar">`;
-                };
-                reader.readAsDataURL(e.target.files[0]);
-            }
-        });
-
-        // Share buttons
-        document.getElementById('shareWhatsApp').addEventListener('click', () => {
-            const code = document.getElementById('inviteCode').textContent;
-            const link = generateInviteLink(code);
-            window.open(`https://wa.me/?text=${encodeURIComponent('Join my A\' Quiz game! Use code: ' + code + ' or click: ' + link)}`, '_blank');
-        });
-
-        document.getElementById('shareTelegram').addEventListener('click', () => {
-            const code = document.getElementById('inviteCode').textContent;
-            const link = generateInviteLink(code);
-            window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('Join my A\' Quiz game! Code: ' + code)}`, '_blank');
-        });
-
-        document.getElementById('copyInvite').addEventListener('click', () => {
-            const code = document.getElementById('inviteCode').textContent;
-            const link = generateInviteLink(code);
-            navigator.clipboard.writeText(`${code} - ${link}`);
-            showNotification('Invite code copied!');
-        });
-
-        // Menu
-        document.getElementById('menuToggle').addEventListener('click', () => {
-            document.getElementById('dropdownMenu').classList.toggle('show');
-        });
-
-        document.getElementById('settingsBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            alert('Settings panel - Coming soon!');
-        });
-
-        document.getElementById('inviteFriendsBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            alert('Share your room code: ' + currentRoom);
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            if (socket) socket.disconnect();
-            gameRoom.classList.remove('active');
-            welcomeModal.style.display = 'flex';
-            document.getElementById('createTab').click();
-        });
-
-        // Check URL for invite code
-        window.addEventListener('load', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const joinCode = urlParams.get('join');
-            if (joinCode) {
-                document.getElementById('joinTab').click();
-                document.getElementById('inviteCodeInput').value = joinCode;
-            }
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.menu-container')) {
-                document.getElementById('dropdownMenu').classList.remove('show');
-            }
-        });
-    </script>
 </body>
 </html>
