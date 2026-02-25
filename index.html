@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Tales - RPG Quiz Adventure</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=MedievalSharp&family=Montserrat:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&display=swap');
 
         * {
             margin: 0;
@@ -18,7 +18,6 @@
             --primary: #ffd700;
             --primary-dark: #b8860b;
             --secondary: #8b0000;
-            --accent: #4a90e2;
             --background: #0a0c0f;
             --surface: #1a1e24;
             --surface-light: #2a2f3a;
@@ -26,14 +25,11 @@
             --text-muted: #8a7f6e;
             --success: #2e7d32;
             --error: #c62828;
-            --warning: #f57c00;
             --border: #3a3f4a;
             --gold-gradient: linear-gradient(135deg, #ffd700, #b8860b);
-            --blood-gradient: linear-gradient(135deg, #8b0000, #4a0000);
             --panel-bg: rgba(20, 18, 24, 0.95);
             --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             --glow: 0 0 20px rgba(255, 215, 0, 0.3);
-            --text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         body {
@@ -44,28 +40,8 @@
             position: fixed;
             width: 100%;
             height: 100%;
-            font-family: 'Montserrat', sans-serif;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(139, 0, 0, 0.1) 0%, transparent 30%),
-                radial-gradient(circle at 90% 70%, rgba(255, 215, 0, 0.1) 0%, transparent 30%),
-                repeating-linear-gradient(45deg, rgba(255, 215, 0, 0.02) 0px, rgba(255, 215, 0, 0.02) 2px, transparent 2px, transparent 4px);
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--surface);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--gold-gradient);
-            border-radius: 10px;
-            border: 1px solid var(--primary);
+            font-family: 'Cinzel', serif;
+            background-image: radial-gradient(circle at 10% 20%, rgba(139, 0, 0, 0.1) 0%, transparent 30%);
         }
 
         /* Loading Screen */
@@ -85,11 +61,10 @@
         }
 
         .loading-logo {
-            width: 250px;
-            height: 250px;
+            width: 200px;
+            height: 200px;
             position: relative;
             margin-bottom: 40px;
-            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.3));
         }
 
         .loading-shield {
@@ -97,107 +72,38 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 200px;
-            height: 220px;
+            width: 150px;
+            height: 170px;
             background: var(--gold-gradient);
             clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            animation: shieldPulse 2s ease-in-out infinite;
+            animation: pulse 2s infinite;
             box-shadow: var(--glow);
         }
 
-        .loading-swords {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 220px;
-            height: 220px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .loading-sword {
-            position: absolute;
-            width: 40px;
-            height: 120px;
-            background: linear-gradient(135deg, #c0c0c0, #808080);
-            border-radius: 20px;
-            transform-origin: bottom center;
-        }
-
-        .loading-sword.left {
-            transform: rotate(-30deg) translateX(-30px);
-            animation: swordCross 2s ease-in-out infinite;
-        }
-
-        .loading-sword.right {
-            transform: rotate(30deg) translateX(30px);
-            animation: swordCross 2s ease-in-out infinite reverse;
-        }
-
-        .loading-sword::after {
-            content: '';
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 30px;
-            background: var(--gold-gradient);
-            border-radius: 50%;
-            box-shadow: 0 0 15px gold;
-        }
-
         .loading-text {
-            font-family: 'Cinzel', serif;
             font-size: 32px;
             font-weight: 800;
             color: var(--primary);
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-            letter-spacing: 8px;
-            animation: textFlicker 3s infinite;
+            margin-bottom: 20px;
         }
 
-        .loading-bar-container {
+        .loading-bar {
             width: 300px;
-            height: 8px;
+            height: 6px;
             background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            margin-top: 30px;
+            border-radius: 3px;
             overflow: hidden;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
         }
 
         .loading-progress {
             height: 100%;
             width: 0%;
             background: var(--gold-gradient);
-            animation: loadProgress 2s ease-out forwards;
-            box-shadow: 0 0 20px gold;
+            animation: load 2s ease-out forwards;
         }
 
-        @keyframes loadProgress {
-            to { width: 100%; }
-        }
-
-        @keyframes shieldPulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.9; }
-        }
-
-        @keyframes swordCross {
-            0%, 100% { transform: rotate(-30deg) translateX(-30px) scale(1); }
-            50% { transform: rotate(-35deg) translateX(-35px) scale(1.1); }
-        }
-
-        @keyframes textFlicker {
-            0%, 100% { opacity: 1; text-shadow: 0 0 20px gold; }
-            25% { opacity: 0.8; text-shadow: 0 0 10px gold; }
-            50% { opacity: 1; text-shadow: 0 0 30px gold; }
-            75% { opacity: 0.9; text-shadow: 0 0 15px gold; }
-        }
+        @keyframes load { to { width: 100%; } }
+        @keyframes pulse { 50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.05); } }
 
         /* Login Screen */
         .login-screen {
@@ -214,86 +120,45 @@
             z-index: 100;
         }
 
-        .login-screen.hidden {
-            display: none;
-        }
+        .login-screen.hidden { display: none; }
 
         .login-panel {
             width: 90%;
-            max-width: 450px;
+            max-width: 400px;
             background: var(--panel-bg);
             border: 3px solid var(--primary);
             border-radius: 30px;
             padding: 40px 30px;
-            box-shadow: var(--shadow), var(--glow);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-panel::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 20px,
-                rgba(255, 215, 0, 0.03) 20px,
-                rgba(255, 215, 0, 0.03) 40px
-            );
-            animation: panelMove 20s linear infinite;
-        }
-
-        @keyframes panelMove {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            box-shadow: var(--shadow);
         }
 
         .login-header {
             text-align: center;
             margin-bottom: 30px;
-            position: relative;
         }
 
         .login-header h1 {
-            font-family: 'Cinzel', serif;
-            font-size: 48px;
+            font-size: 42px;
             font-weight: 800;
             background: var(--gold-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
-            letter-spacing: 4px;
-            text-shadow: var(--text-shadow);
-        }
-
-        .login-header p {
-            color: var(--text-muted);
-            font-size: 14px;
-            letter-spacing: 2px;
         }
 
         .server-status {
-            display: inline-block;
-            padding: 5px 15px;
-            background: var(--surface);
-            border: 1px solid var(--border);
+            padding: 8px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 14px;
             margin-top: 10px;
         }
 
-        .server-status.online {
-            color: var(--success);
-            border-color: var(--success);
-        }
+        .status-online { color: #2e7d32; }
+        .status-offline { color: #c62828; }
+        .status-checking { color: #ffd700; }
 
         .input-field {
             margin-bottom: 20px;
-            position: relative;
         }
 
         .input-field label {
@@ -301,79 +166,47 @@
             color: var(--primary);
             font-size: 12px;
             margin-bottom: 8px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .input-field input {
             width: 100%;
-            padding: 16px 20px;
+            padding: 15px;
             background: rgba(0, 0, 0, 0.5);
             border: 2px solid var(--border);
-            border-radius: 15px;
+            border-radius: 12px;
             color: var(--primary);
             font-size: 16px;
-            font-family: 'Cinzel', serif;
-            transition: all 0.3s;
         }
 
         .input-field input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-            background: rgba(0, 0, 0, 0.7);
-        }
-
-        .input-field input::placeholder {
-            color: var(--text-muted);
-            font-family: 'Montserrat', sans-serif;
-            font-size: 14px;
         }
 
         .login-btn {
             width: 100%;
-            padding: 18px;
+            padding: 16px;
             background: var(--gold-gradient);
             border: none;
-            border-radius: 15px;
-            color: #000;
+            border-radius: 12px;
+            color: black;
             font-size: 18px;
             font-weight: 800;
-            font-family: 'Cinzel', serif;
             cursor: pointer;
             margin-top: 20px;
             transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            font-family: 'Cinzel', serif;
         }
 
         .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+            box-shadow: var(--glow);
         }
 
-        .login-btn:active {
-            transform: translateY(0);
-        }
-
-        .login-btn::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .login-btn:active::after {
-            width: 300px;
-            height: 300px;
+        .login-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .demo-buttons {
@@ -396,7 +229,6 @@
 
         .demo-btn:hover {
             border-color: var(--primary);
-            background: rgba(255, 215, 0, 0.1);
             color: var(--primary);
         }
 
@@ -410,49 +242,37 @@
             display: none;
         }
 
-        .game-hud.visible {
-            display: block;
-        }
+        .game-hud.visible { display: block; }
 
-        /* Top Bar - RPG Style */
+        /* Top Bar */
         .top-bar {
             position: absolute;
             top: 20px;
             left: 20px;
             right: 20px;
-            height: 80px;
+            height: 70px;
             background: var(--panel-bg);
             border: 3px solid var(--primary);
-            border-radius: 40px;
+            border-radius: 35px;
             padding: 0 25px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             z-index: 10;
             backdrop-filter: blur(10px);
-            box-shadow: var(--shadow);
-            background-image: linear-gradient(90deg, 
-                rgba(255, 215, 0, 0.1) 0%, 
-                transparent 20%,
-                transparent 80%,
-                rgba(255, 215, 0, 0.1) 100%
-            );
         }
 
         .game-title {
-            font-family: 'MedievalSharp', cursive;
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 800;
             background: var(--gold-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            letter-spacing: 2px;
         }
 
         .player-stats {
             display: flex;
-            gap: 20px;
+            gap: 15px;
         }
 
         .stat-item {
@@ -460,168 +280,89 @@
             align-items: center;
             gap: 8px;
             background: rgba(0, 0, 0, 0.5);
-            padding: 8px 20px;
-            border-radius: 30px;
-            border: 2px solid var(--border);
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+            padding: 8px 15px;
+            border-radius: 25px;
+            border: 1px solid var(--border);
         }
 
-        .stat-icon {
-            font-size: 20px;
-            filter: drop-shadow(0 0 5px gold);
-        }
-
-        .stat-value {
-            font-weight: 600;
-            color: var(--primary);
-            font-size: 18px;
-            font-family: 'Cinzel', serif;
-        }
+        .stat-value { color: var(--primary); font-weight: 600; }
 
         .menu-btn {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             background: rgba(0, 0, 0, 0.5);
-            border: 3px solid var(--primary);
-            border-radius: 30px;
+            border: 2px solid var(--primary);
+            border-radius: 25px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 5px;
             cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .menu-btn:hover {
-            transform: scale(1.1);
-            box-shadow: var(--glow);
         }
 
         .menu-btn span {
-            width: 25px;
-            height: 3px;
+            width: 20px;
+            height: 2px;
             background: var(--primary);
-            border-radius: 3px;
-            transition: 0.3s;
         }
 
-        /* Main Canvas - RPG World */
+        /* Main Canvas */
         .game-canvas {
             position: absolute;
-            top: 120px;
+            top: 110px;
             left: 20px;
             right: 20px;
-            bottom: 100px;
+            bottom: 90px;
             background: var(--panel-bg);
             border: 3px solid var(--primary);
             border-radius: 30px;
             overflow-y: auto;
             padding: 25px;
             backdrop-filter: blur(10px);
-            box-shadow: var(--shadow);
-            background-image: 
-                radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
-                repeating-linear-gradient(45deg, rgba(255, 215, 0, 0.02) 0px, rgba(255, 215, 0, 0.02) 2px, transparent 2px, transparent 4px);
         }
 
-        /* Bottom Bar - RPG Action Bar */
+        /* Bottom Bar */
         .bottom-bar {
             position: absolute;
             bottom: 20px;
             left: 20px;
             right: 20px;
-            height: 80px;
+            height: 70px;
             background: var(--panel-bg);
             border: 3px solid var(--primary);
-            border-radius: 40px;
+            border-radius: 35px;
             display: flex;
             align-items: center;
             justify-content: space-around;
             z-index: 10;
-            backdrop-filter: blur(10px);
-            box-shadow: var(--shadow);
-            padding: 0 10px;
         }
 
         .action-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             padding: 8px 15px;
             border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s;
-            position: relative;
-            min-width: 70px;
         }
 
         .action-btn:hover {
             background: rgba(255, 215, 0, 0.1);
-            transform: translateY(-5px);
         }
 
-        .action-btn::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            border-radius: 27px;
-            background: var(--gold-gradient);
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: -1;
-        }
+        .action-icon { font-size: 22px; }
+        .action-label { font-size: 10px; color: var(--text-muted); }
 
-        .action-btn:hover::before {
-            opacity: 0.3;
-        }
-
-        .action-icon { 
-            font-size: 28px; 
-            filter: drop-shadow(0 0 5px gold);
-        }
-        
-        .action-label { 
-            font-size: 11px; 
-            color: var(--text-muted);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Content Cards - RPG Scrolls */
+        /* Content Cards */
         .content-card {
             background: rgba(0, 0, 0, 0.5);
             border: 2px solid var(--border);
             border-radius: 25px;
             padding: 25px;
             margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .content-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--gold-gradient);
-        }
-
-        .content-card::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--primary), transparent);
         }
 
         .card-header {
@@ -632,29 +373,23 @@
         }
 
         .card-icon {
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             background: var(--gold-gradient);
-            border-radius: 20px;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
-            box-shadow: var(--glow);
-            border: 2px solid var(--primary);
+            font-size: 28px;
         }
 
         .card-title {
-            font-family: 'Cinzel', serif;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 600;
-            background: var(--gold-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: var(--text-shadow);
+            color: var(--primary);
         }
 
-        /* Options Grid - RPG Battle Choices */
+        /* Options Grid */
         .options-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -663,114 +398,52 @@
         }
 
         .option-tile {
-            background: rgba(0, 0, 0, 0.7);
-            border: 3px solid var(--border);
-            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--border);
+            border-radius: 15px;
             padding: 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
             font-size: 16px;
-            font-weight: 600;
-            font-family: 'Cinzel', serif;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .option-tile::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .option-tile:hover::before {
-            left: 100%;
         }
 
         .option-tile:hover {
             border-color: var(--primary);
-            transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+            transform: translateY(-2px);
         }
 
         .option-tile.selected {
             border-color: var(--primary);
             background: rgba(255, 215, 0, 0.2);
             transform: scale(1.02);
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
         }
 
-        .option-tile.correct {
-            border-color: var(--success);
-            background: rgba(46, 125, 50, 0.2);
-        }
-
-        .option-tile.wrong {
-            border-color: var(--error);
-            background: rgba(198, 40, 40, 0.2);
-        }
-
-        /* Level Grid - RPG Map */
+        /* Level Grid */
         .level-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 15px;
+            gap: 10px;
         }
 
         .level-node {
             aspect-ratio: 1;
-            background: rgba(0, 0, 0, 0.7);
-            border: 3px solid var(--border);
-            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--border);
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s;
-            font-weight: 600;
-            font-family: 'Cinzel', serif;
-            position: relative;
         }
 
-        .level-node:hover:not(.locked) {
-            transform: translateY(-5px) scale(1.05);
-            border-color: var(--primary);
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
-        }
+        .level-node.unlocked { border-color: var(--primary); }
+        .level-node.completed { background: var(--gold-gradient); color: black; }
+        .level-node.locked { opacity: 0.5; cursor: not-allowed; }
 
-        .level-node.unlocked { 
-            border-color: var(--primary);
-            background: rgba(255, 215, 0, 0.1);
-        }
-        
-        .level-node.completed { 
-            background: var(--gold-gradient);
-            border-color: white;
-            color: black;
-        }
-        
-        .level-node.locked { 
-            opacity: 0.5; 
-            filter: grayscale(0.8); 
-            cursor: not-allowed; 
-        }
-
-        .level-node.completed::after {
-            content: '✓';
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            font-size: 20px;
-            color: black;
-        }
-
-        /* Feature Pages - RPG Submenus */
+        /* Feature Pages */
         .feature-page {
             position: fixed;
             top: 0;
@@ -780,16 +453,11 @@
             background: var(--background);
             z-index: 2000;
             transform: translateX(100%);
-            transition: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transition: 0.3s;
             overflow-y: auto;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(139, 0, 0, 0.1) 0%, transparent 30%),
-                radial-gradient(circle at 90% 70%, rgba(255, 215, 0, 0.1) 0%, transparent 30%);
         }
 
-        .feature-page.active {
-            transform: translateX(0);
-        }
+        .feature-page.active { transform: translateX(0); }
 
         .feature-header {
             position: sticky;
@@ -800,44 +468,32 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            z-index: 10;
-            backdrop-filter: blur(10px);
         }
 
         .back-btn {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             background: rgba(0, 0, 0, 0.5);
-            border: 3px solid var(--primary);
-            border-radius: 30px;
+            border: 2px solid var(--primary);
+            border-radius: 25px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
-            transition: all 0.3s;
-            color: var(--primary);
-        }
-
-        .back-btn:hover {
-            transform: scale(1.1);
-            box-shadow: var(--glow);
         }
 
         .feature-title {
-            font-family: 'Cinzel', serif;
-            font-size: 32px;
+            font-size: 24px;
             font-weight: 600;
-            background: var(--gold-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--primary);
         }
 
-        /* Chat - RPG Tavern Chat */
+        /* Chat */
         .chat-container {
             background: rgba(0, 0, 0, 0.5);
-            border: 3px solid var(--border);
-            border-radius: 25px;
+            border: 2px solid var(--border);
+            border-radius: 20px;
             overflow: hidden;
         }
 
@@ -845,148 +501,74 @@
             height: 400px;
             overflow-y: auto;
             padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
         }
 
         .message {
             margin-bottom: 15px;
             display: flex;
-            animation: messageSlide 0.3s ease;
         }
 
-        @keyframes messageSlide {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .message.host { justify-content: flex-start; }
+        .message.player { justify-content: flex-end; }
+        .message.system { justify-content: center; }
 
-        .message.host {
-            justify-content: flex-start;
-        }
-
-        .message.player {
-            justify-content: flex-end;
-        }
-
-        .message.system .message-bubble {
+        .message-bubble {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
             background: var(--surface);
-            border: 2px solid var(--text-muted);
-            color: var(--text-muted);
-            font-style: italic;
-        }
-
-        .message.host .message-bubble {
-            background: var(--surface);
-            border: 2px solid var(--primary);
+            border: 1px solid var(--border);
         }
 
         .message.player .message-bubble {
             background: var(--gold-gradient);
             color: black;
-            border: 2px solid white;
-        }
-
-        .message-bubble {
-            max-width: 80%;
-            padding: 12px 18px;
-            border-radius: 20px;
-            word-wrap: break-word;
-            font-family: 'Cinzel', serif;
-            position: relative;
-        }
-
-        .message.player .message-bubble::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            right: 10px;
-            width: 10px;
-            height: 10px;
-            background: var(--primary);
-            transform: rotate(45deg);
         }
 
         .chat-input-area {
             display: flex;
-            padding: 20px;
+            padding: 15px;
             gap: 10px;
-            border-top: 3px solid var(--border);
-            background: rgba(0, 0, 0, 0.5);
+            border-top: 2px solid var(--border);
         }
 
         .chat-input-area input {
             flex: 1;
-            padding: 15px 20px;
+            padding: 12px;
             background: rgba(0, 0, 0, 0.5);
             border: 2px solid var(--border);
-            border-radius: 25px;
+            border-radius: 8px;
             color: var(--text);
-            font-size: 16px;
-            font-family: 'Cinzel', serif;
-        }
-
-        .chat-input-area input:focus {
-            outline: none;
-            border-color: var(--primary);
         }
 
         .chat-input-area button {
-            padding: 15px 30px;
+            padding: 12px 20px;
             background: var(--gold-gradient);
             border: none;
-            border-radius: 25px;
+            border-radius: 8px;
             color: black;
-            font-weight: 800;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Cinzel', serif;
-            text-transform: uppercase;
         }
 
-        .chat-input-area button:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--glow);
-        }
-
-        /* Timer - RPG Countdown */
+        /* Timer */
         .timer {
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 800;
             color: var(--primary);
             text-align: center;
             margin: 20px 0;
-            font-family: 'Cinzel', serif;
-            text-shadow: 0 0 20px gold;
-            animation: timerPulse 1s infinite;
         }
 
-        .timer.warning {
-            color: var(--warning);
-            text-shadow: 0 0 20px orange;
-        }
+        .timer.warning { color: #f57c00; }
+        .timer.danger { color: #c62828; animation: pulse 1s infinite; }
 
-        .timer.danger {
-            color: var(--error);
-            text-shadow: 0 0 20px red;
-            animation: timerDanger 0.5s infinite;
-        }
-
-        @keyframes timerPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        @keyframes timerDanger {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* Progress Bar - RPG Experience Bar */
+        /* Progress Bar */
         .progress-bar {
             width: 100%;
-            height: 12px;
+            height: 8px;
             background: rgba(0, 0, 0, 0.5);
-            border: 2px solid var(--border);
-            border-radius: 6px;
+            border-radius: 4px;
             overflow: hidden;
             margin: 15px 0;
         }
@@ -995,49 +577,30 @@
             height: 100%;
             background: var(--gold-gradient);
             transition: width 0.3s;
-            box-shadow: 0 0 10px gold;
         }
 
-        /* Achievement Badge */
-        .achievement-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid var(--primary);
-            border-radius: 30px;
-            margin: 5px;
-            animation: badgeAppear 0.5s ease;
-        }
-
-        @keyframes badgeAppear {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* Notifications - RPG Toast */
+        /* Toast Notifications */
         .game-toast {
             position: fixed;
             top: 100px;
-            right: 30px;
+            right: 20px;
             background: var(--panel-bg);
             border: 3px solid var(--primary);
-            border-radius: 25px;
-            padding: 20px;
+            border-radius: 15px;
+            padding: 15px;
             z-index: 10000;
-            animation: toastSlide 0.4s ease;
-            max-width: 350px;
-            box-shadow: var(--shadow), var(--glow);
-            backdrop-filter: blur(10px);
+            animation: slideIn 0.3s;
+            max-width: 300px;
         }
 
-        @keyframes toastSlide {
+        @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* Dialog - RPG Modal */
+        .hidden { display: none !important; }
+
+        /* Dialog */
         .dialog-overlay {
             position: fixed;
             top: 0;
@@ -1049,66 +612,34 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(5px);
         }
 
         .dialog-content {
             background: var(--panel-bg);
             border: 4px solid var(--primary);
             border-radius: 30px;
-            padding: 40px;
+            padding: 30px;
             max-width: 400px;
             text-align: center;
-            animation: dialogAppear 0.3s ease;
-        }
-
-        @keyframes dialogAppear {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .dialog-title {
-            font-family: 'Cinzel', serif;
-            font-size: 28px;
-            color: var(--primary);
-            margin-bottom: 20px;
         }
 
         .dialog-buttons {
             display: flex;
             gap: 15px;
-            margin-top: 30px;
+            margin-top: 20px;
         }
 
         .dialog-btn {
             flex: 1;
-            padding: 15px;
+            padding: 12px;
             border: none;
-            border-radius: 15px;
-            font-family: 'Cinzel', serif;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s;
+            font-family: 'Cinzel', serif;
         }
 
-        .dialog-btn.cancel {
-            background: var(--surface);
-            color: var(--text);
-            border: 2px solid var(--border);
-        }
-
-        .dialog-btn.confirm {
-            background: var(--gold-gradient);
-            color: black;
-        }
-
-        .dialog-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--glow);
-        }
-
-        .hidden { display: none !important; }
+        .dialog-btn.cancel { background: var(--surface); color: var(--text); }
+        .dialog-btn.confirm { background: var(--gold-gradient); color: black; }
     </style>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
@@ -1117,16 +648,12 @@
     <div id="loadingScreen" class="loading-screen">
         <div class="loading-logo">
             <div class="loading-shield"></div>
-            <div class="loading-swords">
-                <div class="loading-sword left"></div>
-                <div class="loading-sword right"></div>
-            </div>
         </div>
         <div class="loading-text">THE TALES</div>
-        <div class="loading-bar-container">
+        <div class="loading-bar">
             <div class="loading-progress"></div>
         </div>
-        <div style="margin-top: 20px; color: var(--primary); font-family: 'Cinzel', serif;" id="loadingText">Entering the realm...</div>
+        <div style="margin-top: 20px; color: var(--primary);" id="loadingText">Connecting to realm...</div>
     </div>
 
     <!-- Login Screen -->
@@ -1134,17 +661,17 @@
         <div class="login-panel">
             <div class="login-header">
                 <h1>THE TALES</h1>
-                <p>QUEST FOR KNOWLEDGE</p>
-                <div id="serverStatus" class="server-status">⚔️ Connecting...</div>
+                <p>Quest for Knowledge</p>
+                <div id="serverStatus" class="server-status status-checking">🔍 Connecting to server...</div>
             </div>
             
             <div class="input-field">
-                <label>📜 ADVENTURER NAME</label>
+                <label>ADVENTURER NAME</label>
                 <input type="text" id="username" placeholder="Enter your name" autocomplete="off">
             </div>
             
             <div class="input-field">
-                <label>🔑 SECRET PASSCODE</label>
+                <label>SECRET PASSCODE</label>
                 <input type="password" id="password" placeholder="Enter passcode">
             </div>
             
@@ -1156,10 +683,10 @@
             </div>
             
             <div style="text-align: center; margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 15px;">
-                <p style="color: var(--text-muted); margin-bottom: 5px;">👑 Game Master Access:</p>
-                <p style="color: var(--primary); font-family: 'Cinzel', serif;">admin / QuizMaster2024!</p>
+                <p style="color: var(--text-muted); margin-bottom: 5px;">👑 Game Master:</p>
+                <p style="color: var(--primary);">admin / QuizMaster2024!</p>
             </div>
-            <div id="loginError" style="color: var(--error); text-align: center; margin-top: 15px;"></div>
+            <div id="loginError" style="color: #c62828; text-align: center; margin-top: 15px;"></div>
         </div>
     </div>
 
@@ -1169,96 +696,29 @@
         <div class="top-bar">
             <div class="game-title">THE TALES</div>
             <div class="player-stats">
-                <div class="stat-item">
-                    <span class="stat-icon">📊</span>
-                    <span class="stat-value" id="hudLevel">1</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-icon">💎</span>
-                    <span class="stat-value" id="hudGems">100</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-icon">🏆</span>
-                    <span class="stat-value" id="hudScore">0</span>
-                </div>
+                <div class="stat-item"><span>📊</span><span class="stat-value" id="hudLevel">1</span></div>
+                <div class="stat-item"><span>💎</span><span class="stat-value" id="hudGems">100</span></div>
+                <div class="stat-item"><span>🏆</span><span class="stat-value" id="hudScore">0</span></div>
             </div>
             <div class="menu-btn" onclick="toggleMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
+                <span></span><span></span><span></span>
             </div>
         </div>
 
-        <!-- Simple Menu -->
+        <!-- Menu -->
         <div id="simpleMenu" class="feature-page" style="transform: translateX(-100%);">
             <div class="feature-header">
                 <div class="back-btn" onclick="toggleMenu()">←</div>
                 <div class="feature-title">MENU</div>
             </div>
             <div class="feature-content">
-                <div class="content-card" onclick="openFeature('profile')">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div class="card-icon" style="width: 50px; height: 50px; font-size: 24px;">👤</div>
-                        <div>
-                            <div style="color: var(--primary); font-weight: 600; font-family: 'Cinzel', serif;">HERO PROFILE</div>
-                            <div style="font-size: 12px; color: var(--text-muted);">View your stats</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-card" onclick="openFeature('chat')">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div class="card-icon" style="width: 50px; height: 50px; font-size: 24px;">💬</div>
-                        <div>
-                            <div style="color: var(--primary); font-weight: 600; font-family: 'Cinzel', serif;">TAVERN CHAT</div>
-                            <div style="font-size: 12px; color: var(--text-muted);">Talk with heroes</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-card" onclick="openFeature('levels')">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div class="card-icon" style="width: 50px; height: 50px; font-size: 24px;">🗺️</div>
-                        <div>
-                            <div style="color: var(--primary); font-weight: 600; font-family: 'Cinzel', serif;">QUEST MAP</div>
-                            <div style="font-size: 12px; color: var(--text-muted);">50+ adventures</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-card" onclick="openFeature('inventory')">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div class="card-icon" style="width: 50px; height: 50px; font-size: 24px;">🏆</div>
-                        <div>
-                            <div style="color: var(--primary); font-weight: 600; font-family: 'Cinzel', serif;">ACHIEVEMENTS</div>
-                            <div style="font-size: 12px; color: var(--text-muted);">Your trophies</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-card" onclick="openFeature('leaderboard')">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div class="card-icon" style="width: 50px; height: 50px; font-size: 24px;">📜</div>
-                        <div>
-                            <div style="color: var(--primary); font-weight: 600; font-family: 'Cinzel', serif;">HALL OF FAME</div>
-                            <div style="font-size: 12px; color: var(--text-muted);">Top adventurers</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-card" onclick="openFeature('admin')">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div class="card-icon" style="width: 50px; height: 50px; font-size: 24px;">⚙️</div>
-                        <div>
-                            <div style="color: var(--primary); font-weight: 600; font-family: 'Cinzel', serif;">GAME MASTER</div>
-                            <div style="font-size: 12px; color: var(--text-muted);">Create quests</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-card" onclick="logout()">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div class="card-icon" style="width: 50px; height: 50px; font-size: 24px;">🚪</div>
-                        <div>
-                            <div style="color: var(--error); font-weight: 600; font-family: 'Cinzel', serif;">EXIT REALM</div>
-                            <div style="font-size: 12px; color: var(--text-muted);">Leave the game</div>
-                        </div>
-                    </div>
-                </div>
+                <div class="content-card" onclick="openFeature('profile')">👤 HERO PROFILE</div>
+                <div class="content-card" onclick="openFeature('chat')">💬 TAVERN CHAT</div>
+                <div class="content-card" onclick="openFeature('levels')">🗺️ QUEST MAP</div>
+                <div class="content-card" onclick="openFeature('inventory')">🏆 ACHIEVEMENTS</div>
+                <div class="content-card" onclick="openFeature('leaderboard')">📜 HALL OF FAME</div>
+                <div class="content-card" onclick="openFeature('admin')">⚙️ GAME MASTER</div>
+                <div class="content-card" onclick="logout()">🚪 EXIT REALM</div>
             </div>
         </div>
 
@@ -1270,39 +730,26 @@
                     <div class="card-icon">📜</div>
                     <div class="card-title">THE PROPHECY</div>
                 </div>
-                <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 20px; font-size: 16px;">
+                <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 20px;">
                     Welcome, brave adventurer! The realm of knowledge awaits your quest. 
                     Prove your wisdom across 50+ challenges and claim your place in the Hall of Fame.
                 </p>
                 
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 25px 0;">
-                    <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 15px; border: 1px solid var(--border);">
+                <div style="display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; margin: 25px 0;">
+                    <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 15px;">
                         <span style="font-size: 40px;">📚</span>
-                        <div style="font-size: 14px; color: var(--primary); margin-top: 10px;">50+ Quests</div>
+                        <div style="color: var(--primary);">50+ Quests</div>
                     </div>
-                    <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 15px; border: 1px solid var(--border);">
+                    <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 15px;">
                         <span style="font-size: 40px;">⚔️</span>
-                        <div style="font-size: 14px; color: var(--primary); margin-top: 10px;">7 Categories</div>
-                    </div>
-                    <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 15px; border: 1px solid var(--border);">
-                        <span style="font-size: 40px;">🏆</span>
-                        <div style="font-size: 14px; color: var(--primary); margin-top: 10px;">Achievements</div>
-                    </div>
-                    <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 15px; border: 1px solid var(--border);">
-                        <span style="font-size: 40px;">👥</span>
-                        <div style="font-size: 14px; color: var(--primary); margin-top: 10px;">Multiplayer</div>
+                        <div style="color: var(--primary);">7 Categories</div>
                     </div>
                 </div>
 
-                <div style="margin: 25px 0;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span>Global Progress</span>
-                        <span id="globalProgressText">0/50</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 0%;" id="globalProgress"></div>
-                    </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;" id="globalProgress"></div>
                 </div>
+                <div style="text-align: right; margin-bottom: 20px;" id="globalProgressText">0/50</div>
 
                 <button class="login-btn" onclick="startGame()">BEGIN YOUR QUEST</button>
             </div>
@@ -1315,19 +762,17 @@
                 </div>
                 
                 <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                    <span style="background: var(--surface); padding: 8px 20px; border-radius: 20px; color: var(--primary); font-family: 'Cinzel', serif;" id="levelCategory">General</span>
-                    <span style="background: var(--surface); padding: 8px 20px; border-radius: 20px; color: var(--primary); font-family: 'Cinzel', serif;" id="levelDifficulty">Easy</span>
+                    <span style="background: var(--surface); padding: 5px 15px; border-radius: 20px;" id="levelCategory">General</span>
+                    <span style="background: var(--surface); padding: 5px 15px; border-radius: 20px;" id="levelDifficulty">Easy</span>
                 </div>
                 
                 <div class="timer" id="timer">30s</div>
                 
-                <p style="color: var(--text-muted); margin: 20px 0; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 15px; border-left: 4px solid var(--primary); font-size: 18px;" id="levelDescription">
+                <p style="color: var(--text-muted); margin: 20px 0; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 15px;" id="levelDescription">
                     Choose your answer wisely...
                 </p>
                 
-                <div class="options-grid" id="optionsContainer">
-                    <!-- Options will be injected here -->
-                </div>
+                <div class="options-grid" id="optionsContainer"></div>
                 
                 <button class="login-btn" onclick="submitLevel()" id="submitBtn">SUBMIT ANSWER</button>
             </div>
@@ -1335,18 +780,18 @@
             <!-- Result Card -->
             <div id="resultCard" class="content-card hidden">
                 <div style="text-align: center;">
-                    <div style="font-size: 80px; margin-bottom: 20px; animation: pulse 1s infinite;" id="resultIcon">🎉</div>
-                    <h2 style="color: var(--primary); margin-bottom: 15px; font-family: 'Cinzel', serif; font-size: 32px;" id="resultTitle">Victory!</h2>
-                    <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 18px;" id="resultMessage"></p>
+                    <div style="font-size: 80px; margin-bottom: 20px;" id="resultIcon">🏆</div>
+                    <h2 style="color: var(--primary); margin-bottom: 15px;" id="resultTitle">Victory!</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 20px;" id="resultMessage"></p>
                     
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px;">
-                        <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; border: 1px solid var(--border);">
+                    <div style="display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; margin-bottom: 25px;">
+                        <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px;">
                             <span style="font-size: 32px; color: var(--primary);" id="resultScore">+100</span>
-                            <div style="font-size: 14px; color: var(--text-muted);">Experience</div>
+                            <div>XP</div>
                         </div>
-                        <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px; border: 1px solid var(--border);">
+                        <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px;">
                             <span style="font-size: 32px; color: var(--primary);" id="resultGems">+20</span>
-                            <div style="font-size: 14px; color: var(--text-muted);">Gems</div>
+                            <div>Gems</div>
                         </div>
                     </div>
                     
@@ -1357,26 +802,11 @@
 
         <!-- Bottom Bar -->
         <div class="bottom-bar">
-            <div class="action-btn" onclick="openFeature('levels')">
-                <span class="action-icon">🗺️</span>
-                <span class="action-label">MAP</span>
-            </div>
-            <div class="action-btn" onclick="openFeature('chat')">
-                <span class="action-icon">💬</span>
-                <span class="action-label">TAVERN</span>
-            </div>
-            <div class="action-btn" onclick="showRestartDialog()">
-                <span class="action-icon">🔄</span>
-                <span class="action-label">RESTART</span>
-            </div>
-            <div class="action-btn" onclick="openFeature('inventory')">
-                <span class="action-icon">🏆</span>
-                <span class="action-label">AWARDS</span>
-            </div>
-            <div class="action-btn" onclick="openFeature('profile')">
-                <span class="action-icon">👤</span>
-                <span class="action-label">HERO</span>
-            </div>
+            <div class="action-btn" onclick="openFeature('levels')"><span class="action-icon">🗺️</span><span class="action-label">MAP</span></div>
+            <div class="action-btn" onclick="openFeature('chat')"><span class="action-icon">💬</span><span class="action-label">TAVERN</span></div>
+            <div class="action-btn" onclick="showRestartDialog()"><span class="action-icon">🔄</span><span class="action-label">RESTART</span></div>
+            <div class="action-btn" onclick="openFeature('inventory')"><span class="action-icon">🏆</span><span class="action-label">AWARDS</span></div>
+            <div class="action-btn" onclick="openFeature('profile')"><span class="action-icon">👤</span><span class="action-label">HERO</span></div>
         </div>
     </div>
 
@@ -1389,66 +819,33 @@
         <div class="feature-content">
             <div class="content-card">
                 <div style="text-align: center;">
-                    <div style="width: 120px; height: 120px; background: var(--gold-gradient); border-radius: 60px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 50px; border: 4px solid var(--primary);" id="profileAvatar">J</div>
-                    <h2 style="color: var(--primary); margin-bottom: 5px; font-family: 'Cinzel', serif; font-size: 28px;" id="profileName">Hero</h2>
-                    <p style="color: var(--text-muted); margin-bottom: 25px;">Level <span id="profileLevel">1</span> Adventurer</p>
+                    <div style="width: 100px; height: 100px; background: var(--gold-gradient); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 40px;" id="profileAvatar">J</div>
+                    <h2 style="color: var(--primary);" id="profileName">Hero</h2>
+                    <p>Level <span id="profileLevel">1</span></p>
                     
                     <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 15px; margin: 25px 0;">
-                        <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px;">
-                            <span style="font-size: 28px; color: var(--primary);" id="profileGems">100</span>
-                            <div style="font-size: 12px; color: var(--text-muted);">GEMS</div>
-                        </div>
-                        <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px;">
-                            <span style="font-size: 28px; color: var(--primary);" id="profileScore">0</span>
-                            <div style="font-size: 12px; color: var(--text-muted);">SCORE</div>
-                        </div>
-                        <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 15px;">
-                            <span style="font-size: 28px; color: var(--primary);" id="profileQuests">0</span>
-                            <div style="font-size: 12px; color: var(--text-muted);">QUESTS</div>
-                        </div>
+                        <div><span style="color: var(--primary);" id="profileGems">100</span><br><small>Gems</small></div>
+                        <div><span style="color: var(--primary);" id="profileScore">0</span><br><small>Score</small></div>
+                        <div><span style="color: var(--primary);" id="profileQuests">0</span><br><small>Quests</small></div>
                     </div>
 
                     <div style="text-align: left;">
-                        <h3 style="color: var(--primary); margin-bottom: 15px; font-family: 'Cinzel', serif;">⚔️ STATISTICS</h3>
-                        <div style="margin-bottom: 15px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span>Quests Completed</span>
-                                <span id="statsAnswered">0/50</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 0%;" id="answeredProgress"></div>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span>Wisdom</span>
-                                <span id="statsCorrect">0</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 0%;" id="correctProgress"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span>Accuracy</span>
-                                <span id="statsAccuracy">0%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 0%;" id="accuracyProgress"></div>
-                            </div>
-                        </div>
+                        <h3 style="color: var(--primary);">Statistics</h3>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%;" id="answeredProgress"></div></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%;" id="correctProgress"></div></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%;" id="accuracyProgress"></div></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Chat Page (Tavern) -->
+    <!-- Chat Page -->
     <div id="chatPage" class="feature-page">
         <div class="feature-header">
             <div class="back-btn" onclick="closeFeature('chat')">←</div>
             <div class="feature-title">TAVERN CHAT</div>
-            <div style="margin-left: auto; color: var(--primary); font-weight: 600; font-family: 'Cinzel', serif;" id="onlineCount">0 heroes</div>
+            <div style="margin-left: auto; color: var(--primary);" id="onlineCount">0 heroes</div>
         </div>
         <div class="feature-content">
             <div class="chat-container">
@@ -1461,19 +858,19 @@
         </div>
     </div>
 
-    <!-- Levels Page (Quest Map) -->
+    <!-- Levels Page -->
     <div id="levelsPage" class="feature-page">
         <div class="feature-header">
             <div class="back-btn" onclick="closeFeature('levels')">←</div>
             <div class="feature-title">QUEST MAP</div>
-            <div style="margin-left: auto; color: var(--primary); font-family: 'Cinzel', serif;" id="levelProgress">0/50</div>
+            <div style="margin-left: auto; color: var(--primary);" id="levelProgress">0/50</div>
         </div>
         <div class="feature-content">
             <div class="level-grid" id="levelGrid"></div>
         </div>
     </div>
 
-    <!-- Inventory Page (Achievements) -->
+    <!-- Inventory Page -->
     <div id="inventoryPage" class="feature-page">
         <div class="feature-header">
             <div class="back-btn" onclick="closeFeature('inventory')">←</div>
@@ -1491,13 +888,7 @@
             <div class="feature-title">HALL OF FAME</div>
         </div>
         <div class="feature-content">
-            <div class="content-card">
-                <div style="margin-bottom: 20px; text-align: center;">
-                    <span style="font-size: 40px;">👑</span>
-                    <h3 style="color: var(--primary); font-family: 'Cinzel', serif;">Top Adventurers</h3>
-                </div>
-                <div id="leaderboardList"></div>
-            </div>
+            <div class="content-card" id="leaderboardList"></div>
         </div>
     </div>
 
@@ -1510,69 +901,37 @@
         <div class="feature-content">
             <div class="content-card">
                 <div id="adminLogin">
-                    <h3 style="color: var(--primary); margin-bottom: 20px; font-family: 'Cinzel', serif;">🔐 GAME MASTER ACCESS</h3>
-                    <input type="password" id="adminCode" class="input-field" style="width:100%; margin-bottom:15px;" placeholder="Enter secret code">
+                    <h3 style="color: var(--primary);">🔐 GAME MASTER ACCESS</h3>
+                    <input type="password" id="adminCode" class="input-field" placeholder="Enter secret code">
                     <button class="login-btn" onclick="verifyAdmin()">VERIFY</button>
                 </div>
                 <div id="adminControls" class="hidden">
-                    <h3 style="color: var(--primary); margin-bottom: 20px; font-family: 'Cinzel', serif;">📜 CREATE NEW QUEST</h3>
-                    
-                    <div class="input-field">
-                        <label>QUEST TITLE</label>
-                        <input type="text" id="levelTitle" placeholder="e.g., What is the capital of France?">
-                    </div>
-                    
-                    <div class="input-field">
-                        <label>QUEST DESCRIPTION</label>
-                        <textarea id="levelDesc" placeholder="Additional lore..."></textarea>
-                    </div>
-                    
-                    <div class="input-field">
-                        <label>CATEGORY</label>
-                        <select id="questionCategory">
-                            <option value="General">⚔️ General</option>
-                            <option value="Science">🔬 Science</option>
-                            <option value="History">📜 History</option>
-                            <option value="Entertainment">🎭 Entertainment</option>
-                            <option value="Geography">🗺️ Geography</option>
-                            <option value="Sports">⚽ Sports</option>
-                            <option value="Art">🎨 Art</option>
-                        </select>
-                    </div>
-                    
-                    <div style="display: grid; gap: 10px; margin-bottom: 20px;">
-                        <input type="text" id="optA" class="input-field" placeholder="Option A">
-                        <input type="text" id="optB" class="input-field" placeholder="Option B">
-                        <input type="text" id="optC" class="input-field" placeholder="Option C">
-                        <input type="text" id="optD" class="input-field" placeholder="Option D">
-                    </div>
-                    
-                    <div class="input-field">
-                        <label>CORRECT ANSWER</label>
-                        <select id="correctOpt">
-                            <option value="A">A is correct</option>
-                            <option value="B">B is correct</option>
-                            <option value="C">C is correct</option>
-                            <option value="D">D is correct</option>
-                        </select>
-                    </div>
-                    
-                    <div class="input-field">
-                        <label>DIFFICULTY</label>
-                        <select id="questionDifficulty">
-                            <option value="easy">⚪ Easy</option>
-                            <option value="medium">🟡 Medium</option>
-                            <option value="hard">🔴 Hard</option>
-                        </select>
-                    </div>
-                    
+                    <h3 style="color: var(--primary);">CREATE NEW QUEST</h3>
+                    <input type="text" id="levelTitle" placeholder="Quest title">
+                    <textarea id="levelDesc" placeholder="Description"></textarea>
+                    <select id="questionCategory">
+                        <option value="General">General</option>
+                        <option value="Science">Science</option>
+                        <option value="History">History</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Geography">Geography</option>
+                    </select>
+                    <input type="text" id="optA" placeholder="Option A">
+                    <input type="text" id="optB" placeholder="Option B">
+                    <input type="text" id="optC" placeholder="Option C">
+                    <input type="text" id="optD" placeholder="Option D">
+                    <select id="correctOpt">
+                        <option value="A">A is correct</option>
+                        <option value="B">B is correct</option>
+                        <option value="C">C is correct</option>
+                        <option value="D">D is correct</option>
+                    </select>
+                    <select id="questionDifficulty">
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
                     <button class="login-btn" onclick="addLevel()">CREATE QUEST</button>
-                    
-                    <div style="margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 15px;">
-                        <h4 style="color: var(--primary); margin-bottom: 15px;">📊 REALM STATS</h4>
-                        <p>Total Quests: <span id="totalQuestions">0</span></p>
-                        <p>Categories: <span id="categoryCount">0</span></p>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1581,8 +940,8 @@
     <!-- Restart Dialog -->
     <div id="restartDialog" class="dialog-overlay hidden">
         <div class="dialog-content">
-            <div class="dialog-title">🔄 RESTART QUEST?</div>
-            <p style="color: var(--text-muted); margin-bottom: 25px;">All progress will be lost. Continue?</p>
+            <h3 style="color: var(--primary);">🔄 RESTART QUEST?</h3>
+            <p style="margin: 20px 0;">All progress will be lost.</p>
             <div class="dialog-buttons">
                 <button class="dialog-btn cancel" onclick="closeDialog()">CANCEL</button>
                 <button class="dialog-btn confirm" onclick="restartGame()">CONFIRM</button>
@@ -1591,8 +950,8 @@
     </div>
 
     <script>
-        // ===== CONFIG =====
-        const BACKEND_URL = window.location.origin;
+        // ===== CONFIG - CONNECT TO YOUR RAILWAY BACKEND =====
+        const BACKEND_URL = 'https://tales-a-production.up.railway.app';
         const SOCKET_URL = BACKEND_URL;
         
         // ===== STATE =====
@@ -1614,59 +973,73 @@
             }, 500);
         }, 2000);
 
-        // ===== SOCKET CONNECTION =====
-        function connectSocket() {
-            socket = io(SOCKET_URL, {
-                transports: ['websocket', 'polling'],
-                reconnection: true
-            });
-
-            socket.on('connect', () => {
-                updateServerStatus('online');
-                if (currentUser) {
-                    socket.emit('join-chat', currentUser.username);
-                }
-            });
-
-            socket.on('connect_error', () => {
-                updateServerStatus('offline');
-            });
-
-            socket.on('disconnect', () => {
-                updateServerStatus('offline');
-            });
-
-            socket.on('new-message', (data) => {
-                addChatMessage(data.username, data.message);
-            });
-
-            socket.on('user-joined', (data) => {
-                addChatMessage('System', `${data.username} joined the tavern`, 'system');
-                document.getElementById('onlineCount').innerText = `${data.count} heroes`;
-            });
-
-            socket.on('user-left', (data) => {
-                addChatMessage('System', `${data.username} left the tavern`, 'system');
-                document.getElementById('onlineCount').innerText = `${data.count} heroes`;
-            });
-
-            socket.on('message-history', (messages) => {
-                const chatDiv = document.getElementById('chatMessages');
-                chatDiv.innerHTML = '';
-                messages.forEach(msg => {
-                    addChatMessage(msg.username, msg.message, msg.type);
-                });
-            });
+        // ===== CHECK SERVER CONNECTION =====
+        async function checkServerConnection() {
+            const statusEl = document.getElementById('serverStatus');
+            try {
+                const response = await fetch(`${BACKEND_URL}/health`);
+                const data = await response.json();
+                console.log('Server response:', data);
+                statusEl.innerHTML = '✅ Connected to realm';
+                statusEl.className = 'server-status status-online';
+                return true;
+            } catch (error) {
+                console.error('Server connection failed:', error);
+                statusEl.innerHTML = '❌ Cannot reach realm';
+                statusEl.className = 'server-status status-offline';
+                showToast('Connection Error', 'Cannot reach game server', '⚠️');
+                return false;
+            }
         }
 
-        function updateServerStatus(status) {
-            const statusEl = document.getElementById('serverStatus');
-            if (status === 'online') {
-                statusEl.innerHTML = '🟢 Realm Online';
-                statusEl.className = 'server-status online';
-            } else {
-                statusEl.innerHTML = '🔴 Realm Offline';
-                statusEl.className = 'server-status';
+        // Call on load
+        checkServerConnection();
+
+        // ===== SOCKET CONNECTION =====
+        function connectSocket() {
+            try {
+                socket = io(SOCKET_URL, {
+                    transports: ['websocket', 'polling'],
+                    reconnection: true,
+                    reconnectionAttempts: 5,
+                    reconnectionDelay: 1000,
+                    timeout: 10000
+                });
+
+                socket.on('connect', () => {
+                    console.log('✅ Socket connected');
+                    if (currentUser) {
+                        socket.emit('join-chat', currentUser.username);
+                    }
+                });
+
+                socket.on('connect_error', (error) => {
+                    console.log('Socket connection error:', error);
+                });
+
+                socket.on('new-message', (data) => {
+                    addChatMessage(data.username, data.message);
+                });
+
+                socket.on('user-joined', (data) => {
+                    addChatMessage('System', `${data.username} joined the tavern`, 'system');
+                    document.getElementById('onlineCount').innerText = `${data.count} heroes`;
+                });
+
+                socket.on('user-left', (data) => {
+                    addChatMessage('System', `${data.username} left`, 'system');
+                    document.getElementById('onlineCount').innerText = `${data.count} heroes`;
+                });
+
+                socket.on('message-history', (messages) => {
+                    const chatDiv = document.getElementById('chatMessages');
+                    chatDiv.innerHTML = '';
+                    messages.forEach(msg => {
+                        addChatMessage(msg.username, msg.message, msg.type);
+                    });
+                });
+            } catch (error) {
+                console.error('Socket connection error:', error);
             }
         }
 
@@ -1713,6 +1086,7 @@
                     document.getElementById('loginError').innerText = data.error || 'Login failed';
                 }
             } catch (error) {
+                console.error('Login error:', error);
                 document.getElementById('loginError').innerText = 'Cannot reach the realm';
                 showToast('Error', 'Connection failed', '⚠️');
             } finally {
@@ -1735,8 +1109,6 @@
             document.getElementById('loginScreen').classList.remove('hidden');
             document.getElementById('gameHUD').classList.remove('visible');
             document.getElementById('simpleMenu').classList.remove('active');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
             stopTimer();
         }
 
@@ -1746,22 +1118,17 @@
                 const response = await fetch(`${BACKEND_URL}/api/levels`);
                 gameLevels = await response.json();
                 loadLevels();
-                updateQuestionStats();
             } catch (error) {
-                console.error('Failed to load levels');
+                console.error('Failed to load levels:', error);
                 showToast('Info', 'Using offline quests', '📚');
-                // Fallback to default questions
-                loadDefaultQuestions();
+                // Fallback questions
+                gameLevels = [
+                    { levelId: 1, title: "What is the capital of France?", options: ["London", "Berlin", "Paris", "Madrid"], correct: "C", category: "Geography", difficulty: "easy" },
+                    { levelId: 2, title: "Which planet is known as the Red Planet?", options: ["Venus", "Mars", "Jupiter", "Saturn"], correct: "B", category: "Science", difficulty: "easy" },
+                    { levelId: 3, title: "Who painted the Mona Lisa?", options: ["Van Gogh", "Picasso", "Da Vinci", "Rembrandt"], correct: "C", category: "Art", difficulty: "easy" }
+                ];
+                loadLevels();
             }
-        }
-
-        function loadDefaultQuestions() {
-            gameLevels = [
-                { levelId: 1, title: "What is the capital of France?", description: "City of Love", options: ["London", "Berlin", "Paris", "Madrid"], correct: "C", category: "Geography", difficulty: "easy" },
-                { levelId: 2, title: "Which planet is known as the Red Planet?", description: "Named after Roman god of war", options: ["Venus", "Mars", "Jupiter", "Saturn"], correct: "B", category: "Science", difficulty: "easy" },
-                { levelId: 3, title: "Who painted the Mona Lisa?", description: "Renaissance artist", options: ["Van Gogh", "Picasso", "Da Vinci", "Rembrandt"], correct: "C", category: "Art", difficulty: "easy" }
-            ];
-            loadLevels();
         }
 
         function loadLevels() {
@@ -1770,7 +1137,7 @@
             
             grid.innerHTML = '';
 
-            for (let i = 1; i <= (gameLevels.length || 50); i++) {
+            for (let i = 1; i <= gameLevels.length; i++) {
                 const level = gameLevels.find(l => l.levelId === i);
                 const isUnlocked = i === 1 || (currentUser?.completedLevels?.includes(i-1));
                 const isCompleted = currentUser?.completedLevels?.includes(i);
@@ -1788,10 +1155,7 @@
                     }
                 };
 
-                node.innerHTML = `
-                    <div style="font-size: 20px; font-weight: bold;">${i}</div>
-                    <div style="font-size: 16px; margin-top: 5px;">${isCompleted ? '🏆' : isUnlocked ? '⚔️' : '🔒'}</div>
-                `;
+                node.innerHTML = `<div style="font-size: 20px;">${i}</div>`;
                 grid.appendChild(node);
             }
 
@@ -1813,7 +1177,6 @@
             document.getElementById('resultCard').classList.add('hidden');
             document.getElementById('levelCard').classList.remove('hidden');
 
-            document.getElementById('levelIcon').innerText = getCategoryIcon(level.category);
             document.getElementById('levelTitle').innerText = `Level ${level.levelId}: ${level.title}`;
             document.getElementById('levelCategory').innerText = level.category || 'General';
             document.getElementById('levelDifficulty').innerText = level.difficulty || 'medium';
@@ -1823,7 +1186,7 @@
             optionsContainer.innerHTML = '';
             
             level.options.forEach((opt, index) => {
-                const letter = String.fromCharCode(65 + index); // A, B, C, D
+                const letter = String.fromCharCode(65 + index);
                 const div = document.createElement('div');
                 div.className = 'option-tile';
                 div.id = `opt${letter}`;
@@ -1833,19 +1196,6 @@
             });
 
             startTimer();
-        }
-
-        function getCategoryIcon(category) {
-            const icons = {
-                'General': '📚',
-                'Science': '🔬',
-                'History': '📜',
-                'Entertainment': '🎭',
-                'Geography': '🗺️',
-                'Sports': '⚽',
-                'Art': '🎨'
-            };
-            return icons[category] || '⚔️';
         }
 
         function selectOption(opt) {
@@ -1863,9 +1213,7 @@
                 const timerEl = document.getElementById('timer');
                 timerEl.classList.remove('warning', 'danger');
                 
-                if (timeLeft <= 10) {
-                    timerEl.classList.add('warning');
-                }
+                if (timeLeft <= 10) timerEl.classList.add('warning');
                 if (timeLeft <= 5) {
                     timerEl.classList.remove('warning');
                     timerEl.classList.add('danger');
@@ -1912,22 +1260,12 @@
                     let scoreGain = 100;
                     let gemGain = 20;
                     
-                    // Speed bonus
                     if (timeLeft > 20) {
                         scoreGain += 50;
                         gemGain += 10;
                     } else if (timeLeft > 10) {
                         scoreGain += 25;
                         gemGain += 5;
-                    }
-                    
-                    // Difficulty multiplier
-                    if (level.difficulty === 'hard') {
-                        scoreGain *= 2;
-                        gemGain *= 1.5;
-                    } else if (level.difficulty === 'medium') {
-                        scoreGain *= 1.5;
-                        gemGain *= 1.2;
                     }
 
                     const response = await fetch(`${BACKEND_URL}/api/progress`, {
@@ -1961,9 +1299,8 @@
                         document.getElementById('resultScore').innerText = `+${Math.floor(scoreGain)}`;
                         document.getElementById('resultGems').innerText = `+${Math.floor(gemGain)}`;
                         
-                        showToast('Quest Complete!', `+${Math.floor(scoreGain)} XP, +${Math.floor(gemGain)} Gems`, '🏆');
+                        showToast('Quest Complete!', `+${Math.floor(scoreGain)} XP`, '🏆');
                         
-                        updateProfileStats();
                         loadLeaderboard();
                     }
                 } else {
@@ -1972,6 +1309,7 @@
                     document.getElementById('introCard').classList.remove('hidden');
                 }
             } catch (error) {
+                console.error('Submit error:', error);
                 showToast('Error', 'Failed to submit answer', '⚠️');
             } finally {
                 submitBtn.disabled = false;
@@ -2000,8 +1338,8 @@
                     message: message
                 });
                 input.value = '';
-            } else if (!socket || !socket.connected) {
-                showToast('Error', 'Tavern is quiet...', '💬');
+            } else {
+                showToast('Error', 'Cannot send message', '💬');
             }
         }
 
@@ -2010,20 +1348,11 @@
             const msgDiv = document.createElement('div');
             
             let messageClass = 'host';
-            if (type === 'system') {
-                messageClass = 'system';
-            } else if (username === currentUser?.username) {
-                messageClass = 'player';
-            }
+            if (type === 'system') messageClass = 'system';
+            else if (username === currentUser?.username) messageClass = 'player';
             
             msgDiv.className = `message ${messageClass}`;
-            
-            msgDiv.innerHTML = `
-                <div class="message-bubble">
-                    ${type !== 'system' ? `<div style="font-size: 11px; color: ${messageClass === 'player' ? '#000' : 'var(--primary)'};">${username}</div>` : ''}
-                    <div>${message}</div>
-                </div>
-            `;
+            msgDiv.innerHTML = `<div class="message-bubble">${username !== 'System' ? `<small>${username}</small><br>` : ''}${message}</div>`;
             chatDiv.appendChild(msgDiv);
             chatDiv.scrollTop = chatDiv.scrollHeight;
         }
@@ -2037,20 +1366,14 @@
                 const list = document.getElementById('leaderboardList');
                 if (!list) return;
                 
-                list.innerHTML = '';
+                list.innerHTML = '<h3 style="color: var(--primary);">Top Adventurers</h3>';
                 leaderboard.forEach((player, index) => {
                     const div = document.createElement('div');
-                    div.className = 'achievement-badge';
-                    div.style.width = '100%';
-                    div.style.margin = '10px 0';
-                    div.innerHTML = `
-                        <span style="font-size: 24px;">${index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : '📜'}</span>
-                        <div style="flex: 1;">
-                            <div style="color: var(--primary); font-weight: 600;">${player.username}</div>
-                            <div style="font-size: 12px;">Level ${player.level} • ${player.score} XP</div>
-                        </div>
-                        <span style="color: var(--primary);">${player.completedCount} Quests</span>
-                    `;
+                    div.style.padding = '10px';
+                    div.style.margin = '5px 0';
+                    div.style.background = 'rgba(0,0,0,0.3)';
+                    div.style.borderRadius = '10px';
+                    div.innerHTML = `${index === 0 ? '👑' : index === 1 ? '🥈' : index === 2 ? '🥉' : '📜'} ${player.username} - ${player.score} XP (Level ${player.level})`;
                     list.appendChild(div);
                 });
             } catch (error) {
@@ -2065,16 +1388,9 @@
                 document.getElementById('adminLogin').classList.add('hidden');
                 document.getElementById('adminControls').classList.remove('hidden');
                 showToast('Access Granted', 'Welcome Game Master', '⚔️');
-                updateQuestionStats();
             } else {
                 showToast('Access Denied', 'Invalid code', '🔒');
             }
-        }
-
-        function updateQuestionStats() {
-            document.getElementById('totalQuestions').innerText = gameLevels.length;
-            const categories = new Set(gameLevels.map(q => q.category)).size;
-            document.getElementById('categoryCount').innerText = categories;
         }
 
         async function addLevel() {
@@ -2111,14 +1427,12 @@
 
                 if (response.ok) {
                     showToast('Success', 'New quest created!', '📜');
-                    
                     document.getElementById('levelTitle').value = '';
                     document.getElementById('levelDesc').value = '';
                     document.getElementById('optA').value = '';
                     document.getElementById('optB').value = '';
                     document.getElementById('optC').value = '';
                     document.getElementById('optD').value = '';
-                    
                     await loadLevelsFromServer();
                 }
             } catch (error) {
@@ -2136,16 +1450,9 @@
             if (page) {
                 page.classList.add('active');
                 toggleMenu();
-                
-                if (feature === 'levels') {
-                    loadLevels();
-                } else if (feature === 'inventory') {
-                    loadAchievements();
-                } else if (feature === 'profile') {
-                    updateProfileStats();
-                } else if (feature === 'leaderboard') {
-                    loadLeaderboard();
-                }
+                if (feature === 'levels') loadLevels();
+                else if (feature === 'inventory') loadAchievements();
+                else if (feature === 'leaderboard') loadLeaderboard();
             }
         }
 
@@ -2181,20 +1488,13 @@
             
             updateStats();
             loadLevels();
-            
             showToast('New Journey', 'Starting your quest anew', '🗺️');
         }
 
         function showToast(title, message, icon) {
             const toast = document.createElement('div');
             toast.className = 'game-toast';
-            toast.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                    <span style="font-size: 24px;">${icon}</span>
-                    <span style="color: var(--primary); font-weight: 600; font-family: 'Cinzel', serif;">${title}</span>
-                </div>
-                <div style="color: var(--text-muted);">${message}</div>
-            `;
+            toast.innerHTML = `<div style="display: flex; align-items: center; gap: 10px;"><span>${icon}</span><span style="color: var(--primary);">${title}</span></div><div>${message}</div>`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
@@ -2209,76 +1509,36 @@
             document.getElementById('profileQuests').innerText = currentUser?.completedLevels?.length || 0;
         }
 
-        function updateProfileStats() {
-            if (!currentUser) return;
-            
-            const answered = totalQuestions;
-            const correct = correctAnswers;
-            const accuracy = answered > 0 ? Math.round((correct/answered)*100) : 0;
-            
-            document.getElementById('statsAnswered').innerHTML = `${answered}/${gameLevels.length}`;
-            document.getElementById('statsCorrect').innerText = correct;
-            document.getElementById('statsAccuracy').innerText = accuracy + '%';
-            
-            document.getElementById('answeredProgress').style.width = `${Math.min((answered/gameLevels.length)*100, 100)}%`;
-            document.getElementById('correctProgress').style.width = `${(correct/gameLevels.length)*100}%`;
-            document.getElementById('accuracyProgress').style.width = `${accuracy}%`;
-        }
-
         function loadAchievements() {
             const grid = document.getElementById('inventoryGrid');
             if (!grid) return;
             
             const achievements = [
-                { icon: '🎯', name: 'First Blood', desc: 'Complete first quest', unlocked: currentUser?.completedLevels?.includes(1) },
-                { icon: '🔥', name: 'On Fire', desc: '5 correct answers', unlocked: correctAnswers >= 5 },
-                { icon: '⚡', name: 'Speed Demon', desc: 'Answer in under 5s', unlocked: false },
-                { icon: '🎓', name: 'Scholar', desc: '10 correct answers', unlocked: correctAnswers >= 10 },
-                { icon: '👑', name: 'Legend', desc: 'Complete all quests', unlocked: currentUser?.completedLevels?.length === gameLevels.length },
-                { icon: '💎', name: 'Rich', desc: 'Collect 500 gems', unlocked: (currentUser?.gems || 0) >= 500 }
+                { icon: '🎯', name: 'First Blood', unlocked: currentUser?.completedLevels?.includes(1) },
+                { icon: '🔥', name: 'On Fire', unlocked: correctAnswers >= 5 },
+                { icon: '👑', name: 'Legend', unlocked: currentUser?.completedLevels?.length === gameLevels.length },
+                { icon: '💎', name: 'Rich', unlocked: (currentUser?.gems || 0) >= 500 }
             ];
             
             grid.innerHTML = '';
-            achievements.forEach(achievement => {
+            achievements.forEach(a => {
                 const div = document.createElement('div');
-                div.className = `option-tile ${achievement.unlocked ? 'completed' : ''}`;
-                div.innerHTML = `
-                    <div style="font-size: 48px; margin-bottom: 10px;">${achievement.icon}</div>
-                    <div style="color: var(--primary); font-weight: 600;">${achievement.name}</div>
-                    <div style="font-size: 12px; color: var(--text-muted); margin: 5px 0;">${achievement.desc}</div>
-                    <div style="font-size: 12px; color: ${achievement.unlocked ? 'var(--success)' : 'var(--text-muted)'}">
-                        ${achievement.unlocked ? '✓ UNLOCKED' : '🔒 LOCKED'}
-                    </div>
-                `;
+                div.className = `option-tile ${a.unlocked ? 'completed' : ''}`;
+                div.innerHTML = `<div style="font-size: 40px;">${a.icon}</div><div>${a.name}</div><div><small>${a.unlocked ? '✓ UNLOCKED' : '🔒 LOCKED'}</small></div>`;
                 grid.appendChild(div);
             });
         }
 
         function startGame() {
-            if (gameLevels.length > 0) {
-                loadLevel(1);
-            } else {
-                loadDefaultQuestions();
-                loadLevel(1);
-            }
+            if (gameLevels.length > 0) loadLevel(1);
+            else loadLevelsFromServer().then(() => loadLevel(1));
         }
 
         // Initialize
         window.onload = function() {
-            checkServerHealth();
+            checkServerConnection();
             loadAchievements();
         };
-
-        async function checkServerHealth() {
-            try {
-                const response = await fetch(`${BACKEND_URL}/health`);
-                if (response.ok) {
-                    updateServerStatus('online');
-                }
-            } catch (error) {
-                updateServerStatus('offline');
-            }
-        }
     </script>
 </body>
 </html>
