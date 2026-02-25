@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Tales - Quiz Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cinzel', serif;
+        }
+
+        body {
+            background: #0a0c0f;
+            color: #e0d6c6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-screen {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .login-panel {
+            background: rgba(20, 18, 24, 0.95);
+            border: 3px solid #ffd700;
+            border-radius: 30px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            font-size: 42px;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .server-status {
+            padding: 8px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .status-online { color: #2e7d32; }
+        .status-offline { color: #c62828; }
+
+        .input-field {
+            margin-bottom: 20px;
+        }
+
+        .input-field label {
+            display: block;
+            color: #ffd700;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid #3a3f4a;
+            border-radius: 12px;
+            color: #ffd700;
+            font-size: 16px;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #ffd700, #b8860b);
+            border: none;
+            border-radius: 12px;
+            color: black;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(255,215,0,0.3);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .demo-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .demo-btn {
+            padding: 12px;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid #3a3f4a;
+            border-radius: 12px;
+            color: #e0d6c6;
+            cursor: pointer;
+        }
+
+        .demo-btn:hover {
+            border-color: #ffd700;
+        }
+
+        .admin-info {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+        }
+
+        .error-message {
+            color: #c62828;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .game-hud {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        .top-bar {
+            background: rgba(20,18,24,0.95);
+            border: 3px solid #ffd700;
+            border-radius: 40px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .game-title {
+            font-size: 24px;
+            color: #ffd700;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .main-content {
+            background: rgba(20,18,24,0.95);
+            border: 3px solid #ffd700;
+            border-radius: 30px;
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .bottom-bar {
+            margin-top: 20px;
+            background: rgba(20,18,24,0.95);
+            border: 3px solid #ffd700;
+            border-radius: 40px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .action-btn {
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .action-btn:hover {
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-panel">
+            <div class="login-header">
+                <h1>THE TALES</h1>
+                <p>QUEST FOR KNOWLEDGE</p>
+                <div id="serverStatus" class="server-status">🔍 Checking connection...</div>
+            </div>
+            
+            <div class="input-field">
+                <label>ADVENTURER NAME</label>
+                <input type="text" id="username" placeholder="Enter your name" value="admin">
+            </div>
+            
+            <div class="input-field">
+                <label>SECRET PASSCODE</label>
+                <input type="password" id="password" placeholder="Enter passcode" value="QuizMaster2024!">
+            </div>
+            
+            <button class="login-btn" onclick="login()" id="loginBtn">BEGIN ADVENTURE</button>
+            
+            <div class="demo-buttons">
+                <button class="demo-btn" onclick="quickLogin('player1', '123456')">⚔️ WARRIOR</button>
+                <button class="demo-btn" onclick="quickLogin('player2', '123456')">🧙 MAGE</button>
+            </div>
+            
+            <div class="admin-info">
+                <p style="color: #8a7f6e;">GAME MASTER:</p>
+                <p style="color: #ffd700;">ADMIN / QUIZMASTER2024!</p>
+            </div>
+            <div id="loginError" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Game HUD (Hidden initially) -->
+    <div id="gameHUD" class="game-hud hidden">
+        <div class="top-bar">
+            <div class="game-title">THE TALES</div>
+            <div class="stats">
+                <div class="stat-item"><span>📊</span><span id="hudLevel">1</span></div>
+                <div class="stat-item"><span>💎</span><span id="hudGems">100</span></div>
+                <div class="stat-item"><span>🏆</span><span id="hudScore">0</span></div>
+            </div>
+        </div>
+        
+        <div class="main-content" id="mainContent">
+            <h2 style="color: #ffd700; margin-bottom: 20px;">Welcome, <span id="welcomeName">Adventurer</span>!</h2>
+            <p style="margin-bottom: 20px;">The realm of knowledge awaits...</p>
+            <button class="login-btn" onclick="startGame()">START QUEST</button>
+        </div>
+        
+        <div class="bottom-bar">
+            <div class="action-btn" onclick="alert('Coming soon!')">🗺️ MAP</div>
+            <div class="action-btn" onclick="alert('Coming soon!')">💬 CHAT</div>
+            <div class="action-btn" onclick="logout()">🚪 EXIT</div>
+        </div>
+    </div>
+
+    <script>
+        // ===== CONFIG =====
+        const BACKEND_URL = 'https://tales-a-production.up.railway.app';
+        
+        // ===== STATE =====
+        let currentUser = null;
+
+        // ===== CHECK SERVER CONNECTION =====
+        async function checkServer() {
+            const statusEl = document.getElementById('serverStatus');
+            try {
+                const response = await fetch(`${BACKEND_URL}/health`);
+                const data = await response.json();
+                console.log('Server response:', data);
+                statusEl.innerHTML = '✅ CONNECTED TO REALM';
+                statusEl.className = 'server-status status-online';
+                return true;
+            } catch (error) {
+                console.error('Server connection failed:', error);
+                statusEl.innerHTML = '❌ CANNOT CONNECT TO REALM';
+                statusEl.className = 'server-status status-offline';
+                return false;
+            }
+        }
+
+        // Check server on load
+        checkServer();
+
+        // ===== LOGIN FUNCTION =====
+        async function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const loginBtn = document.getElementById('loginBtn');
+            const errorEl = document.getElementById('loginError');
+
+            console.log('Login attempt:', { username, password });
+
+            if (!username || !password) {
+                errorEl.innerText = 'Enter your credentials!';
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.innerText = 'CONNECTING...';
+            errorEl.innerText = '';
+
+            try {
+                // Try admin login first (local)
+                if (username === 'admin' && password === 'QuizMaster2024!') {
+                    console.log('Admin login successful');
+                    currentUser = {
+                        username: 'admin',
+                        level: 999,
+                        gems: 9999,
+                        score: 99999,
+                        completedLevels: []
+                    };
+                    showGameScreen();
+                    return;
+                }
+
+                // Try demo accounts
+                if ((username === 'player1' || username === 'player2') && password === '123456') {
+                    console.log('Player login successful');
+                    currentUser = {
+                        username: username,
+                        level: 1,
+                        gems: 100,
+                        score: 0,
+                        completedLevels: []
+                    };
+                    showGameScreen();
+                    return;
+                }
+
+                // If no match, try backend
+                const response = await fetch(`${BACKEND_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Login response:', data);
+
+                if (data.success) {
+                    currentUser = data.user;
+                    showGameScreen();
+                } else {
+                    errorEl.innerText = data.error || 'Login failed';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorEl.innerText = 'Cannot connect to server. Using local login only.';
+                
+                // Fallback: Allow any login for testing
+                currentUser = {
+                    username: username,
+                    level: 1,
+                    gems: 100,
+                    score: 0,
+                    completedLevels: []
+                };
+                showGameScreen();
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerText = 'BEGIN ADVENTURE';
+            }
+        }
+
+        function quickLogin(username, password) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+            login();
+        }
+
+        function showGameScreen() {
+            console.log('Showing game screen for:', currentUser);
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('gameHUD').classList.remove('hidden');
+            document.getElementById('welcomeName').innerText = currentUser.username;
+            document.getElementById('hudLevel').innerText = currentUser.level || 1;
+            document.getElementById('hudGems').innerText = currentUser.gems || 100;
+            document.getElementById('hudScore').innerText = currentUser.score || 0;
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('gameHUD').classList.add('hidden');
+            document.getElementById('username').value = 'admin';
+            document.getElementById('password').value = 'QuizMaster2024!';
+        }
+
+        function startGame() {
+            alert('Game starting! Level 1 coming soon...');
+        }
+
+        // Make functions global
+        window.login = login;
+        window.quickLogin = quickLogin;
+        window.logout = logout;
+        window.startGame = startGame;
+    </script>
+</body>
+</html>
