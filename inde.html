@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A'</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+body{
+background:radial-gradient(circle at top,#111827,#000);
+color:#fff;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+overflow:hidden;
+}
+.screen{
+position:absolute;
+width:100%;
+height:100%;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+transition:opacity .6s ease;
+}
+.hidden{opacity:0;pointer-events:none}
+button{
+padding:12px 20px;
+margin:8px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+background:#1f2937;
+color:#fff;
+box-shadow:0 0 10px #00f2ff55;
+transition:.3s;
+}
+button:hover{
+background:#00f2ff;
+color:#000;
+box-shadow:0 0 20px #00f2ff;
+}
+input{
+padding:10px;
+border-radius:6px;
+border:none;
+margin:6px;
+width:200px;
+}
+#logo{
+font-size:70px;
+font-weight:900;
+animation:glow 2s infinite alternate;
+}
+@keyframes glow{
+from{text-shadow:0 0 10px #00f2ff}
+to{text-shadow:0 0 40px #00f2ff}
+}
+.card{
+background:#111827cc;
+padding:20px;
+border-radius:12px;
+box-shadow:0 0 15px #00f2ff33;
+width:90%;
+max-width:450px;
+text-align:center;
+}
+.option{
+display:block;
+width:100%;
+margin:6px 0;
+}
+#timer{
+width:100px;
+height:100px;
+border-radius:50%;
+border:6px solid #00f2ff;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:20px;
+margin:10px auto;
+}
+.small{font-size:13px;opacity:.7}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro" class="screen">
+<div id="logo">A'</div>
+<p class="small">Press to Start</p>
+</div>
+
+<!-- MENU -->
+<div id="menu" class="screen hidden">
+<h2>Main Menu</h2>
+<button onclick="hostGame()">Host Game</button>
+<button onclick="joinGame()">Join Game</button>
+<button onclick="openDashboard()">Dashboard</button>
+</div>
+
+<!-- JOIN -->
+<div id="joinScreen" class="screen hidden">
+<div class="card">
+<h3>Join Room</h3>
+<input id="roomInput" placeholder="Room Code">
+<button onclick="connectGuest()">Connect</button>
+<button onclick="backMenu()">Back</button>
+</div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="screen hidden">
+<div class="card">
+<h3>Question Dashboard</h3>
+<input id="qText" placeholder="Question">
+<input id="opt1" placeholder="Option 1">
+<input id="opt2" placeholder="Option 2">
+<input id="opt3" placeholder="Option 3">
+<input id="opt4" placeholder="Option 4">
+<input id="correct" placeholder="Correct index (0-3)">
+<button onclick="saveQuestion()">Save Question</button>
+<button onclick="exportQuestions()">Export</button>
+<input type="file" onchange="importQuestions(event)">
+<button onclick="backMenu()">Back</button>
+</div>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen hidden">
+<div class="card">
+<h3 id="roomLabel"></h3>
+<div id="timer">15</div>
+<h3 id="question"></h3>
+<div id="options"></div>
+<p id="score"></p>
+<button onclick="backMenu()">Exit</button>
+</div>
+</div>
+
+<script>
+const SIGNAL_URL="wss://a-prime-signaling-production.up.railway.app";
+let socket,pc,dataChannel,role,roomCode;
+let timerInterval;
+let gameState={
+current:0,
+scores:{host:0,guest:0},
+time:15
+};
+
+let questions=JSON.parse(localStorage.getItem("a_prime_questions"))||[
+{q:"Capital of France?",o:["Berlin","Paris","Rome","Madrid"],a:1}
+];
+
+function show(id){
+document.querySelectorAll(".screen").forEach(s=>s.classList.add("hidden"));
+document.getElementById(id).classList.remove("hidden");
+}
+
+document.getElementById("intro").onclick=()=>show("menu");
+
+function hostGame(){
+role="host";
+roomCode=Math.random().toString(36).substring(2,8).toUpperCase();
+initConnection();
+}
+
+function joinGame(){show("joinScreen");}
+function backMenu(){location.reload();}
+
+function connectGuest(){
+role="guest";
+roomCode=document.getElementById("roomInput").value.trim();
+initConnection();
+}
+
+function initConnection(){
+socket=new WebSocket(SIGNAL_URL);
+socket.onopen=()=>{
+socket.send(JSON.stringify({type:"join",room:roomCode}));
+if(role==="host") createPeer();
+};
+socket.onmessage=(msg)=>{
+let data=JSON.parse(msg.data);
+if(data.type==="offer") handleOffer(data.offer);
+if(data.type==="answer") pc.setRemoteDescription(data.answer);
+if(data.type==="candidate") pc.addIceCandidate(data.candidate);
+};
+}
+
+function createPeer(){
+pc=new RTCPeerConnection({
+iceServers:[{urls:"stun:stun.l.google.com:19302"}]
+});
+dataChannel=pc.createDataChannel("game");
+setupDataChannel();
+pc.onicecandidate=e=>{
+if(e.candidate){
+socket.send(JSON.stringify({type:"signal",room:roomCode,payload:{type:"candidate",candidate:e.candidate}}));
+}
+};
+pc.createOffer().then(o=>{
+pc.setLocalDescription(o);
+socket.send(JSON.stringify({type:"signal",room:roomCode,payload:{type:"offer",offer:o}}));
+});
+}
+
+function handleOffer(offer){
+pc=new RTCPeerConnection({
+iceServers:[{urls:"stun:stun.l.google.com:19302"}]
+});
+pc.ondatachannel=e=>{
+dataChannel=e.channel;
+setupDataChannel();
+};
+pc.onicecandidate=e=>{
+if(e.candidate){
+socket.send(JSON.stringify({type:"signal",room:roomCode,payload:{type:"candidate",candidate:e.candidate}}));
+}
+};
+pc.setRemoteDescription(offer);
+pc.createAnswer().then(a=>{
+pc.setLocalDescription(a);
+socket.send(JSON.stringify({type:"signal",room:roomCode,payload:{type:"answer",answer:a}}));
+});
+}
+
+function setupDataChannel(){
+dataChannel.onopen=()=>{
+startGame();
+};
+dataChannel.onmessage=(e)=>{
+let data=JSON.parse(e.data);
+if(data.type==="state"){gameState=data.state;render();}
+};
+}
+
+function startGame(){
+show("game");
+document.getElementById("roomLabel").innerText="Room: "+roomCode;
+render();
+if(role==="host") startTimer();
+}
+
+function render(){
+let q=questions[gameState.current];
+if(!q){document.getElementById("question").innerText="Game Over";return;}
+document.getElementById("question").innerText=q.q;
+let optDiv=document.getElementById("options");
+optDiv.innerHTML="";
+q.o.forEach((opt,i)=>{
+let b=document.createElement("button");
+b.className="option";
+b.innerText=opt;
+b.onclick=()=>answer(i);
+optDiv.appendChild(b);
+});
+document.getElementById("score").innerText=
+"Host: "+gameState.scores.host+" | Guest: "+gameState.scores.guest;
+document.getElementById("timer").innerText=gameState.time;
+}
+
+function answer(i){
+if(role==="guest"){
+dataChannel.send(JSON.stringify({type:"answer",value:i}));
+}else{
+checkAnswer(i,"host");
+}
+}
+
+function checkAnswer(i,player){
+let correct=questions[gameState.current].a;
+if(i===correct) gameState.scores[player]+=10;
+nextQuestion();
+}
+
+function nextQuestion(){
+gameState.current++;
+gameState.time=15;
+syncState();
+}
+
+function startTimer(){
+timerInterval=setInterval(()=>{
+gameState.time--;
+if(gameState.time<=0) nextQuestion();
+syncState();
+},1000);
+}
+
+function syncState(){
+if(dataChannel&&dataChannel.readyState==="open"){
+dataChannel.send(JSON.stringify({type:"state",state:gameState}));
+}
+render();
+}
+
+dataChannelMessageListener();
+
+function dataChannelMessageListener(){
+document.addEventListener("DOMContentLoaded",()=>{});
+}
+
+function saveQuestion(){
+let q={
+q:document.getElementById("qText").value,
+o:[
+document.getElementById("opt1").value,
+document.getElementById("opt2").value,
+document.getElementById("opt3").value,
+document.getElementById("opt4").value
+],
+a:parseInt(document.getElementById("correct").value)
+};
+questions.push(q);
+localStorage.setItem("a_prime_questions",JSON.stringify(questions));
+alert("Saved!");
+}
+
+function exportQuestions(){
+let dataStr="data:text/json;charset=utf-8,"+
+encodeURIComponent(JSON.stringify(questions));
+let a=document.createElement("a");
+a.href=dataStr;
+a.download="questions.json";
+a.click();
+}
+
+function importQuestions(e){
+let file=e.target.files[0];
+let reader=new FileReader();
+reader.onload=()=>{
+questions=JSON.parse(reader.result);
+localStorage.setItem("a_prime_questions",JSON.stringify(questions));
+alert("Imported!");
+};
+reader.readAsText(file);
+}
+
+</script>
+</body>
+</html>
