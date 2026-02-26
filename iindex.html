@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+body{
+background:#0f172a;
+color:#e2e8f0;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+.container{
+width:95%;
+max-width:500px;
+background:#1e293b;
+padding:30px;
+border-radius:14px;
+text-align:center;
+}
+#logo{
+font-size:55px;
+font-weight:900;
+margin-bottom:20px;
+animation:spin 8s linear infinite;
+opacity:0.8;
+}
+@keyframes spin{
+from{transform:rotate(0deg)}
+to{transform:rotate(360deg)}
+}
+button{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+font-size:15px;
+cursor:pointer;
+background:#3b82f6;
+color:white;
+}
+button:hover{background:#2563eb}
+input{
+width:100%;
+padding:10px;
+margin-top:10px;
+border-radius:8px;
+border:none;
+}
+#game,#lobby{display:none}
+.option{
+background:#334155;
+margin-top:8px;
+}
+.timerWrap{
+background:#334155;
+border-radius:10px;
+margin:15px 0;
+}
+#timerBar{
+height:8px;
+background:#22c55e;
+width:100%;
+border-radius:10px;
+transition:width 1s linear;
+}
+#status{
+margin-top:10px;
+font-size:13px;
+color:#94a3b8;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div id="menu">
+<div id="logo">A</div>
+<button onclick="createRoom()">Create Room (Host)</button>
+<input id="roomInput" placeholder="Enter Room Code">
+<button onclick="joinRoom()">Join Room (Guest)</button>
+</div>
+
+<div id="lobby">
+<h3>Room: <span id="roomCode"></span></h3>
+<p>Waiting for player...</p>
+</div>
+
+<div id="game">
+<h3 id="roleLabel"></h3>
+<div id="scoreBoard"></div>
+
+<div class="timerWrap">
+<div id="timerBar"></div>
+</div>
+
+<h3 id="question"></h3>
+<div id="options"></div>
+
+<button onclick="sendLike()">Send ❤️</button>
+<div id="status"></div>
+</div>
+
+</div>
+
+<script>
+const socket = new WebSocket("wss://a-project-production.up.railway.app");
+
+let role=null;
+let roomId=null;
+
+let questions=[
+{q:"Capital of France?",o:["Berlin","Paris","Rome","Madrid"],a:1},
+{q:"5 + 3 = ?",o:["6","7","8","9"],a:2},
+{q:"Red planet?",o:["Mars","Earth","Venus","Jupiter"],a:0}
+];
+
+let gameState={
+current:0,
+scores:{host:0,guest:0},
+timeLeft:15
+};
+
+let timer=null;
+
+function createRoom(){
+socket.send(JSON.stringify({type:"createRoom"}));
+}
+
+function joinRoom(){
+let code=document.getElementById("roomInput").value.trim();
+socket.send(JSON.stringify({type:"joinRoom",roomId:code}));
+}
+
+socket.onmessage=(e)=>{
+let data=JSON.parse(e.data);
+
+if(data.type==="roomCreated"){
+role="host";
+roomId=data.roomId;
+document.getElementById("menu").style.display="none";
+document.getElementById("lobby").style.display="block";
+document.getElementById("roomCode").innerText=roomId;
+}
+
+if(data.type==="playerJoined"){
+role=role||"guest";
+document.getElementById("lobby").style.display="none";
+startGame();
+}
+
+if(data.type==="stateUpdate" && role==="guest"){
+gameState=data.state;
+renderQuestion();
+updateTimerBar();
+}
+
+if(data.type==="guestAnswer" && role==="host"){
+validateAnswer("guest",data.answer);
+}
+
+if(data.type==="like"){
+document.getElementById("status").innerText="❤️ Received!";
+setTimeout(()=>document.getElementById("status").innerText="",1500);
+}
+
+if(data.type==="error"){
+alert(data.message);
+}
+};
+
+function startGame(){
+document.getElementById("game").style.display="block";
+document.getElementById("roleLabel").innerText=
+role==="host"?"You are Host":"You are Guest";
+renderQuestion();
+if(role==="host") startTimer();
+}
+
+function renderQuestion(){
+let q=questions[gameState.current];
+document.getElementById("question").innerText=q.q;
+let optionsDiv=document.getElementById("options");
+optionsDiv.innerHTML="";
+q.o.forEach((opt,i)=>{
+let btn=document.createElement("button");
+btn.className="option";
+btn.innerText=opt;
+btn.onclick=()=>submitAnswer(i);
+optionsDiv.appendChild(btn);
+});
+updateScore();
+}
+
+function submitAnswer(index){
+if(role==="guest"){
+socket.send(JSON.stringify({
+type:"relay",
+payload:{type:"guestAnswer",answer:index}
+}));
+}
+if(role==="host"){
+validateAnswer("host",index);
+}
+}
+
+function validateAnswer(player,index){
+let correct=questions[gameState.current].a;
+if(index===correct){
+gameState.scores[player]+=10;
+}
+updateScore();
+broadcastState();
+}
+
+function updateScore(){
+document.getElementById("scoreBoard").innerText=
+"Host: "+gameState.scores.host+
+" | Guest: "+gameState.scores.guest;
+}
+
+function startTimer(){
+timer=setInterval(()=>{
+gameState.timeLeft--;
+updateTimerBar();
+
+if(gameState.timeLeft<=0){
+clearInterval(timer);
+nextQuestion();
+}
+},1000);
+}
+
+function updateTimerBar(){
+document.getElementById("timerBar").style.width=
+(gameState.timeLeft/15*100)+"%";
+}
+
+function nextQuestion(){
+gameState.current++;
+gameState.timeLeft=15;
+if(gameState.current>=questions.length){
+document.getElementById("question").innerText="Game Over";
+return;
+}
+renderQuestion();
+startTimer();
+broadcastState();
+}
+
+function broadcastState(){
+socket.send(JSON.stringify({
+type:"relay",
+payload:{type:"stateUpdate",state:gameState}
+}));
+}
+
+function sendLike(){
+socket.send(JSON.stringify({
+type:"relay",
+payload:{type:"like"}
+}));
+document.getElementById("status").innerText="❤️ Sent!";
+setTimeout(()=>document.getElementById("status").innerText="",1500);
+}
+</script>
+
+</body>
+</html>
