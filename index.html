@@ -1,180 +1,226 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>The Tales - Online Battle</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>A'</title>
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #111, #1c1c3c);
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+:root{
+  --bg:#0f172a;
+  --card:#1e293b;
+  --text:#fff;
+  --accent:#3b82f6;
+}
+[data-theme="light"]{
+  --bg:#f8fafc;
+  --card:#e5e7eb;
+  --text:#020617;
+}
+*{box-sizing:border-box;font-family:system-ui}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  display:flex;justify-content:center;align-items:center;
+  min-height:100svh;
+}
+button,input{
+  padding:12px;border-radius:8px;border:none;font-size:16px;
+}
+button{background:var(--accent);color:white}
+button:disabled{opacity:.5}
+.container{
+  width:100%;max-width:420px;padding:20px;
+}
+.hidden{display:none}
+.center{text-align:center}
+
+/* INTRO */
+#intro{
+  position:fixed;inset:0;display:flex;
+  align-items:center;justify-content:center;
+  font-size:96px;font-weight:900;
+  animation:intro 1.4s ease forwards;
+  background:var(--bg);z-index:10;
+}
+@keyframes intro{
+  0%{transform:scale(3);opacity:0}
+  60%{opacity:1}
+  100%{transform:scale(1);opacity:0}
 }
 
-.container {
-    width: 90%;
-    max-width: 400px;
-    text-align: center;
+/* TIMER */
+.timer{
+  height:6px;background:#334155;border-radius:99px;
+  overflow:hidden;margin:10px 0;
+}
+.timer > div{
+  height:100%;background:#22c55e;
+  transition:width .2s linear;
 }
 
-h1 {
-    margin-bottom: 20px;
+/* OPTIONS */
+.option{
+  width:100%;margin-top:10px;
+  background:#334155;color:white;
 }
 
-button {
-    width: 100%;
-    padding: 15px;
-    margin: 10px 0;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    background: #6c5ce7;
-    color: white;
-}
-
-button:hover {
-    background: #a29bfe;
-}
-
-input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 8px;
-    border: none;
-    margin: 10px 0;
-    font-size: 16px;
-}
-
-#status {
-    margin-top: 15px;
-    font-size: 14px;
-    color: #00ffcc;
-}
-
-.hidden {
-    display: none;
+/* EMOJI */
+.reactions span{
+  font-size:24px;cursor:pointer;margin:0 4px;
 }
 </style>
 </head>
+
 <body>
 
-<div class="container">
+<div id="intro">A'</div>
 
-    <h1>The Tales</h1>
+<div class="container hidden" id="app">
 
-    <div id="menu">
-        <button id="hostBtn">🎮 Host Game</button>
-        <button id="joinBtn">🔑 Join Game</button>
-    </div>
+<!-- MENU -->
+<div id="menu" class="center">
+  <h1>A'</h1>
+  <button onclick="createRoom()">Create Room</button>
+  <input id="joinInput" placeholder="Room Code">
+  <button onclick="joinRoom()">Join</button>
+  <br><br>
+  <button onclick="toggleTheme()">🌓 Theme</button>
+  <button onclick="toggleAudio()">🔊 Audio</button>
+</div>
 
-    <div id="joinSection" class="hidden">
-        <input type="text" id="roomInput" placeholder="Enter Game Code" />
-        <button id="joinGameBtn">Join</button>
-    </div>
+<!-- LOBBY -->
+<div id="lobby" class="hidden center">
+  <h3>Room <span id="roomCode"></span></h3>
+  <p>Waiting for players…</p>
+</div>
 
-    <div id="gameSection" class="hidden">
-        <h2>Game Code:</h2>
-        <h3 id="roomCode"></h3>
-        <p>Waiting for opponent...</p>
-    </div>
+<!-- GAME -->
+<div id="game" class="hidden">
+  <div id="score"></div>
+  <div class="timer"><div id="bar"></div></div>
+  <h3 id="q"></h3>
+  <div id="opts"></div>
+  <div class="reactions center">
+    <span onclick="react('🔥')">🔥</span>
+    <span onclick="react('😂')">😂</span>
+    <span onclick="react('😮')">😮</span>
+  </div>
+</div>
 
-    <div id="status"></div>
+<!-- SPECTATOR -->
+<div id="spectator" class="hidden center">
+  <h3>Spectating</h3>
+  <div id="specView"></div>
+</div>
 
 </div>
 
-<!-- SOCKET.IO CDN -->
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-
 <script>
-/* =============================
-   CONNECT TO RAILWAY BACKEND
-============================= */
+/* ---------- STATE ---------- */
+const bc = new BroadcastChannel("A_GAME");
+let role="player",room=null,audio=true,offlineQ=[];
+const Qs=[
+ {c:"General",q:"Capital of France?",o:["Paris","Rome","Berlin","Madrid"],a:0},
+ {c:"Math",q:"7×6?",o:["42","36","40","48"],a:0},
+ {c:"Space",q:"Red planet?",o:["Mars","Venus","Jupiter","Saturn"],a:0}
+];
 
-const socket = io("https://tales-a-production.up.railway.app", {
-    transports: ["websocket"],
-});
+/* ---------- INTRO ---------- */
+setTimeout(()=>{
+  intro.remove();
+  app.classList.remove("hidden");
+},1400);
 
-/* =============================
-   ELEMENTS
-============================= */
+/* ---------- ROOM ---------- */
+function code(){return Math.random().toString(36).slice(2,8).toUpperCase()}
+function createRoom(){
+ room=code();
+ localStorage.setItem(room,JSON.stringify({
+  i:0,t:10,players:{},started:false
+ }));
+ location.search="?room="+room;
+}
+function joinRoom(){
+ room=joinInput.value.trim().toUpperCase();
+ location.search="?room="+room;
+}
+const p=new URLSearchParams(location.search);
+if(p.get("room")){
+ room=p.get("room");
+ if(p.get("view")==="watch"){role="spectator";spectator.classList.remove("hidden")}
+ else lobby.classList.remove("hidden");
+}
 
-const hostBtn = document.getElementById("hostBtn");
-const joinBtn = document.getElementById("joinBtn");
-const joinSection = document.getElementById("joinSection");
-const joinGameBtn = document.getElementById("joinGameBtn");
-const roomInput = document.getElementById("roomInput");
-const gameSection = document.getElementById("gameSection");
-const roomCodeDisplay = document.getElementById("roomCode");
-const statusText = document.getElementById("status");
+/* ---------- GAME LOOP ---------- */
+bc.onmessage=e=>{
+ if(e.data.room!==room) return;
+ render(e.data.state);
+}
+function start(){
+ const s=JSON.parse(localStorage.getItem(room));
+ s.started=true;
+ localStorage.setItem(room,JSON.stringify(s));
+ tick();
+}
+function tick(){
+ let s=JSON.parse(localStorage.getItem(room));
+ if(!s||!s.started) return;
+ s.t--;
+ if(s.t<=0){s.i++;s.t=10}
+ localStorage.setItem(room,JSON.stringify(s));
+ bc.postMessage({room,state:s});
+ if(s.i<Qs.length) setTimeout(tick,1000);
+}
 
-/* =============================
-   CONNECTION STATUS
-============================= */
+/* ---------- RENDER ---------- */
+function render(s){
+ if(role==="spectator"){
+   specView.innerText=Qs[s.i]?.q||"Game Over";
+   return;
+ }
+ lobby.classList.add("hidden");
+ game.classList.remove("hidden");
+ q.innerText=Qs[s.i]?.q||"Game Over";
+ bar.style.width=(s.t/10*100)+"%";
+ opts.innerHTML="";
+ if(!Qs[s.i]) return;
+ let shuffled=[...Qs[s.i].o].sort(()=>Math.random()-.5);
+ shuffled.forEach((o,i)=>{
+  let b=document.createElement("button");
+  b.className="option";b.innerText=o;
+  b.disabled=true;
+  setTimeout(()=>b.disabled=false,400);
+  b.onclick=()=>answer(o);
+  opts.appendChild(b);
+ });
+}
 
-socket.on("connect", () => {
-    statusText.innerText = "🟢 Connected to server";
-});
+/* ---------- ANSWER ---------- */
+function answer(val){
+ let s=JSON.parse(localStorage.getItem(room));
+ let q=Qs[s.i];
+ if(val===q.o[q.a]) beep(600);
+ else beep(200);
+}
 
-socket.on("connect_error", () => {
-    statusText.innerText = "🔴 Cannot connect to server";
-});
+/* ---------- EXTRAS ---------- */
+function react(e){bc.postMessage({room,react:e})}
+function toggleTheme(){
+ document.documentElement.dataset.theme=
+ document.documentElement.dataset.theme==="dark"?"light":"dark";
+}
+function toggleAudio(){audio=!audio}
+function beep(f){
+ if(!audio) return;
+ const a=new AudioContext();
+ const o=a.createOscillator();
+ o.frequency.value=f;o.connect(a.destination);
+ o.start();setTimeout(()=>o.stop(),80);
+}
 
-/* =============================
-   HOST GAME
-============================= */
-
-hostBtn.addEventListener("click", () => {
-    statusText.innerText = "Creating game...";
-    socket.emit("createGame");
-});
-
-/* =============================
-   JOIN BUTTON SHOW INPUT
-============================= */
-
-joinBtn.addEventListener("click", () => {
-    joinSection.classList.remove("hidden");
-});
-
-/* =============================
-   JOIN GAME
-============================= */
-
-joinGameBtn.addEventListener("click", () => {
-    const roomCode = roomInput.value.trim();
-    if (roomCode === "") {
-        statusText.innerText = "Enter a valid code";
-        return;
-    }
-
-    socket.emit("joinGame", roomCode);
-});
-
-/* =============================
-   SERVER EVENTS
-============================= */
-
-socket.on("gameCreated", (roomCode) => {
-    document.getElementById("menu").classList.add("hidden");
-    gameSection.classList.remove("hidden");
-    roomCodeDisplay.innerText = roomCode;
-    statusText.innerText = "Game created successfully!";
-});
-
-socket.on("playerJoined", () => {
-    statusText.innerText = "Opponent joined! Starting game...";
-});
-
-socket.on("errorMessage", (msg) => {
-    statusText.innerText = msg;
-});
+/* ---------- OFFLINE ---------- */
+window.addEventListener("offline",()=>offlineQ.push(Date.now()));
+window.addEventListener("online",()=>offlineQ=[]);
 </script>
 
 </body>
