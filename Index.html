@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Tales - Online Battle</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #111, #1c1c3c);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    background: #6c5ce7;
+    color: white;
+}
+
+button:hover {
+    background: #a29bfe;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+#status {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #00ffcc;
+}
+
+.hidden {
+    display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>The Tales</h1>
+
+    <div id="menu">
+        <button id="hostBtn">🎮 Host Game</button>
+        <button id="joinBtn">🔑 Join Game</button>
+    </div>
+
+    <div id="joinSection" class="hidden">
+        <input type="text" id="roomInput" placeholder="Enter Game Code" />
+        <button id="joinGameBtn">Join</button>
+    </div>
+
+    <div id="gameSection" class="hidden">
+        <h2>Game Code:</h2>
+        <h3 id="roomCode"></h3>
+        <p>Waiting for opponent...</p>
+    </div>
+
+    <div id="status"></div>
+
+</div>
+
+<!-- SOCKET.IO CDN -->
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+<script>
+/* =============================
+   CONNECT TO RAILWAY BACKEND
+============================= */
+
+const socket = io("https://tales-a-production.up.railway.app", {
+    transports: ["websocket"],
+});
+
+/* =============================
+   ELEMENTS
+============================= */
+
+const hostBtn = document.getElementById("hostBtn");
+const joinBtn = document.getElementById("joinBtn");
+const joinSection = document.getElementById("joinSection");
+const joinGameBtn = document.getElementById("joinGameBtn");
+const roomInput = document.getElementById("roomInput");
+const gameSection = document.getElementById("gameSection");
+const roomCodeDisplay = document.getElementById("roomCode");
+const statusText = document.getElementById("status");
+
+/* =============================
+   CONNECTION STATUS
+============================= */
+
+socket.on("connect", () => {
+    statusText.innerText = "🟢 Connected to server";
+});
+
+socket.on("connect_error", () => {
+    statusText.innerText = "🔴 Cannot connect to server";
+});
+
+/* =============================
+   HOST GAME
+============================= */
+
+hostBtn.addEventListener("click", () => {
+    statusText.innerText = "Creating game...";
+    socket.emit("createGame");
+});
+
+/* =============================
+   JOIN BUTTON SHOW INPUT
+============================= */
+
+joinBtn.addEventListener("click", () => {
+    joinSection.classList.remove("hidden");
+});
+
+/* =============================
+   JOIN GAME
+============================= */
+
+joinGameBtn.addEventListener("click", () => {
+    const roomCode = roomInput.value.trim();
+    if (roomCode === "") {
+        statusText.innerText = "Enter a valid code";
+        return;
+    }
+
+    socket.emit("joinGame", roomCode);
+});
+
+/* =============================
+   SERVER EVENTS
+============================= */
+
+socket.on("gameCreated", (roomCode) => {
+    document.getElementById("menu").classList.add("hidden");
+    gameSection.classList.remove("hidden");
+    roomCodeDisplay.innerText = roomCode;
+    statusText.innerText = "Game created successfully!";
+});
+
+socket.on("playerJoined", () => {
+    statusText.innerText = "Opponent joined! Starting game...";
+});
+
+socket.on("errorMessage", (msg) => {
+    statusText.innerText = msg;
+});
+</script>
+
+</body>
+</html>
