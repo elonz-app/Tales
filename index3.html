@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A' Quantum Secure</title>
+
+<style>
+:root{
+  --accent1:#00f5ff;
+  --accent2:#8b5cf6;
+  --glass:rgba(255,255,255,0.07);
+  --border:rgba(255,255,255,0.15);
+  --text:#e2e8f0;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:"Inter",system-ui,sans-serif;
+}
+
+body{
+  height:100vh;
+  background:radial-gradient(circle at top,#0f172a,#020617);
+  color:var(--text);
+  overflow:hidden;
+}
+
+/* Glow */
+body::before, body::after{
+  content:"";
+  position:absolute;
+  width:350px;
+  height:350px;
+  border-radius:50%;
+  filter:blur(120px);
+  opacity:0.4;
+}
+body::before{background:var(--accent2);top:-100px;left:-80px;}
+body::after{background:var(--accent1);bottom:-120px;right:-80px;}
+
+/* Intro */
+#intro{
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#020617;
+  z-index:10;
+  animation:fadeOut 1s ease 3s forwards;
+}
+.logo{
+  font-size:72px;
+  font-weight:900;
+  background:linear-gradient(90deg,var(--accent2),var(--accent1));
+  -webkit-background-clip:text;
+  color:transparent;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{50%{opacity:0.6}}
+@keyframes fadeOut{to{opacity:0;visibility:hidden}}
+
+/* Layout */
+.app{
+  position:relative;
+  z-index:1;
+  height:100vh;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.status{
+  padding:6px 14px;
+  border-radius:20px;
+  background:var(--glass);
+  border:1px solid var(--border);
+  font-size:12px;
+}
+
+.card{
+  backdrop-filter:blur(25px);
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:16px;
+}
+
+textarea{
+  width:100%;
+  height:110px;
+  background:rgba(0,0,0,0.3);
+  border:none;
+  border-radius:12px;
+  padding:10px;
+  color:var(--accent1);
+  resize:none;
+  font-size:11px;
+}
+
+.button-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px;
+}
+
+button{
+  flex:1;
+  padding:8px;
+  border:none;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+  background:linear-gradient(135deg,var(--accent2),var(--accent1));
+  color:white;
+}
+
+video{
+  width:100%;
+  border-radius:14px;
+  background:black;
+}
+
+.video-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+
+.chat{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+.chat-log{
+  flex:1;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.message{
+  max-width:75%;
+  padding:10px 14px;
+  border-radius:20px;
+}
+
+.left{
+  align-self:flex-start;
+  background:rgba(255,255,255,0.08);
+}
+
+.right{
+  align-self:flex-end;
+  background:linear-gradient(135deg,var(--accent2),var(--accent1));
+}
+
+.chat-input{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+}
+
+input{
+  flex:1;
+  padding:8px;
+  border:none;
+  border-radius:14px;
+  background:rgba(255,255,255,0.08);
+  color:white;
+}
+
+@media(max-width:600px){
+  .video-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+
+<body>
+
+<div id="intro"><div class="logo">A'</div></div>
+
+<div class="app">
+
+<div class="header">
+  <div>A' Quantum Secure</div>
+  <div class="status" id="status">Disconnected</div>
+</div>
+
+<div class="card">
+  <textarea id="sdpBox" placeholder="Offer / Answer appears here..."></textarea>
+  <div class="button-row">
+    <button onclick="createOffer()">Create Offer</button>
+    <button onclick="createAnswer()">Create Answer</button>
+    <button onclick="setRemote()">Set Remote</button>
+    <button onclick="copyLink()">Copy Link</button>
+  </div>
+  <div class="button-row">
+    <button onclick="startAudio()">Start Audio</button>
+    <button onclick="startVideo()">Start Video</button>
+  </div>
+</div>
+
+<div class="card video-grid">
+  <video id="localVideo" autoplay muted playsinline></video>
+  <video id="remoteVideo" autoplay playsinline></video>
+</div>
+
+<div class="card chat">
+  <div class="chat-log" id="chatLog"></div>
+  <div class="chat-input">
+    <input type="text" id="messageInput" disabled>
+    <button onclick="sendMessage()" id="sendBtn" disabled>Send</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+let pc;
+let dataChannel;
+let localStream;
+
+function createPeer(){
+  pc=new RTCPeerConnection({
+    iceServers:[{urls:"stun:stun.l.google.com:19302"}]
+  });
+
+  pc.onicecandidate=e=>{
+    if(!e.candidate){
+      sdpBox.value=JSON.stringify(pc.localDescription);
+    }
+  };
+
+  pc.onconnectionstatechange=()=>{
+    status.innerText=pc.connectionState;
+    if(pc.connectionState==="connected"){
+      enableChat();
+    }
+  };
+
+  pc.ondatachannel=e=>{
+    dataChannel=e.channel;
+    setupChannel();
+  };
+
+  pc.ontrack=e=>{
+    remoteVideo.srcObject=e.streams[0];
+  };
+}
+
+function setupChannel(){
+  dataChannel.onmessage=e=>addMessage(e.data,"right");
+  dataChannel.onopen=enableChat;
+}
+
+function enableChat(){
+  messageInput.disabled=false;
+  sendBtn.disabled=false;
+}
+
+async function createOffer(){
+  createPeer();
+  dataChannel=pc.createDataChannel("chat");
+  setupChannel();
+  const offer=await pc.createOffer();
+  await pc.setLocalDescription(offer);
+}
+
+async function createAnswer(){
+  createPeer();
+  const offer=JSON.parse(sdpBox.value);
+  await pc.setRemoteDescription(offer);
+  const answer=await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+}
+
+async function setRemote(){
+  const remote=JSON.parse(sdpBox.value);
+  await pc.setRemoteDescription(remote);
+}
+
+async function startAudio(){
+  localStream=await navigator.mediaDevices.getUserMedia({audio:true});
+  localStream.getTracks().forEach(track=>pc.addTrack(track,localStream));
+}
+
+async function startVideo(){
+  localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+  localVideo.srcObject=localStream;
+  localStream.getTracks().forEach(track=>pc.addTrack(track,localStream));
+}
+
+function sendMessage(){
+  if(!messageInput.value.trim())return;
+  dataChannel.send(messageInput.value);
+  addMessage(messageInput.value,"left");
+  messageInput.value="";
+}
+
+function addMessage(text,side){
+  const div=document.createElement("div");
+  div.className="message "+side;
+  div.innerText=text;
+  chatLog.appendChild(div);
+  chatLog.scrollTop=999999;
+}
+
+function copyLink(){
+  if(!sdpBox.value.trim())return alert("Nothing to copy");
+  const encoded=btoa(unescape(encodeURIComponent(sdpBox.value)));
+  const link=location.origin+location.pathname+"#"+encoded;
+  navigator.clipboard.writeText(link);
+  alert("Link copied!");
+}
+
+window.addEventListener("load",()=>{
+  if(location.hash){
+    try{
+      const decoded=decodeURIComponent(escape(atob(location.hash.substring(1))));
+      sdpBox.value=decoded;
+    }catch{}
+  }
+});
+</script>
+
+</body>
+</html>
